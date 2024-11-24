@@ -36,7 +36,7 @@ int main(int argc, char * argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    screen = SDL_SetVideoMode(800, 600, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+    screen = SDL_SetVideoMode(800, 255, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
     if (screen == NULL) {
         fprintf(stderr,"Error in SDL_SetVideoMode : %s\n", SDL_GetError());
         safeQuit();
