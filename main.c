@@ -1,48 +1,65 @@
 #define SDL_MAIN_HANDLED
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
-//#include <SDL/SDL_rotozoom.h>
-#include <stdio.h>
-#include <stdlib.h>
+
+#include <SDL.h>
+#include <SDL_rotozoom.h>
+#include "sprites.c"
+
+int WINDOW_WIDTH = 800;
+int WINDOW_HEIGHT = 255;
 
 SDL_Surface * screen;
-SDL_Surface * images[85];
 
-enum ImageEnum {
-    BADNIKS = 0,
-    CRITTERS = 1,
-    DR_ROBOTNIK = 2,
-    DR_ROBOTNIK_GREEN_HILL = 3,
-    DR_ROBOTNIK_MARBLE = 4,
-    DR_ROBOTNIK_SCRAP_BRAIN = 5,
-    DR_ROBOTNIK_SPRING_YARD = 6,
-    SONIC = 7,
-    TITLE_SCREEN = 14,
-    GREEN_HILL_CHUNKS = 48
-};
+typedef struct {
+    SDL_Surface * image;
+    SDL_Rect sprite;
+    SDL_Rect pos;
+    int flipped;
+} Sprite;
 
-SDL_Rect getPos(int x, int y, int w, int h);
-Uint32 getRGB(int r, int g, int b);
-void addRect(SDL_Surface * screen, int x, int y, int w, int h, Uint32 rgb);
-void showImage(SDL_Surface * image, SDL_Rect spritePos, SDL_Rect screenPos);
-void safeQuit();
+Sprite sonic;
 
-void loadImages();
-SDL_Surface * loadImage(char path[]);
+void safeQuit() {
+    if (screen != NULL) SDL_FreeSurface(screen);
+    SDL_Quit();
+    exit(EXIT_FAILURE);
+}
+
+void showImage(SDL_Surface * image, SDL_Rect spritePos, SDL_Rect screenPos) {
+    SDL_BlitSurface(image, &spritePos, screen, &screenPos);
+}
+
+int flippedX(Sprite sprite, int x) {
+    return sprite.flipped ? sprite.image->w - x - sprite.sprite.w : x;
+}
+
+void flipSprite(Sprite * sprite) {
+    sprite->flipped = !sprite->flipped;
+    sprite->image = zoomSurface(sprite->image, -1, 1, 1);
+    sprite->sprite.x = sprite->image->w - sprite->sprite.x - sprite->sprite.w;
+}
+
+SDL_Rect getPos(int x, int y, int w, int h) {
+    SDL_Rect pos;
+    pos.x = x;
+    pos.y = y;
+    if (w != -1) pos.w = w;
+    if (h != -1) pos.h = h;
+    return pos;
+}
 
 int main(int argc, char * argv[]) {
-    if (SDL_Init(SDL_INIT_EVERYTHING) !=0) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         fprintf(stderr,"Error in SDL_Init : %s\n", SDL_GetError());
         exit(EXIT_FAILURE);
     }
-
-    screen = SDL_SetVideoMode(800, 255, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+    Uint32 windowFlags = SDL_HWSURFACE | SDL_DOUBLEBUF;
+    screen = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, windowFlags);
     if (screen == NULL) {
         fprintf(stderr,"Error in SDL_SetVideoMode : %s\n", SDL_GetError());
         safeQuit();
     }
 
-    SDL_WM_SetCaption("Sonic The Hedgehog", NULL);
+    SDL_WM_SetCaption("sonic The Hedgehog", NULL);
 
     //addRect(screen, 50, 50, 200, 100, getRGB(64, 118, 173));
     //addRect(screen, 200, 50, 100, 200, getRGB(64, 140, 110));
@@ -53,9 +70,10 @@ int main(int argc, char * argv[]) {
     //SDL_Rect titleScreenBgSprite = getPos(24, 213, 1024, 112);
     //SDL_Rect titleScreenBgPos = getPos(0, 0, -1, -1);
 
-    SDL_Surface * Sonic = images[SONIC];
-    SDL_Rect sonicSprite = getPos(43, 257, 32, 40);
-    SDL_Rect sonicPos = getPos(25, 140, -1, -1);
+    sonic.image = images[SONIC];
+    sonic.sprite = getPos(43, 257, 32, 40);
+    sonic.pos = getPos(25, 140, -1, -1);
+    int isSneaking = 0;
 
     SDL_Surface * GreenHillChunks = images[GREEN_HILL_CHUNKS];
     SDL_Rect GreenHillSprite = getPos(25, 264, 255, 255);
@@ -73,6 +91,12 @@ int main(int argc, char * argv[]) {
             case SDL_KEYDOWN:
                 SDL_FillRect(screen, NULL, 0x000000);
                 switch (event.key.keysym.sym) {
+                    case SDLK_F11:;
+                        if (windowFlags == (SDL_HWSURFACE | SDL_DOUBLEBUF)) {
+                            windowFlags |= SDL_FULLSCREEN;
+                        } else windowFlags = SDL_HWSURFACE | SDL_DOUBLEBUF;
+                        SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, windowFlags);
+                        break;
                     case SDLK_ESCAPE:
                         active = 0;
                         break;
@@ -87,23 +111,28 @@ int main(int argc, char * argv[]) {
                         switch (event.key.keysym.sym) {
                             case SDLK_UP:
                             case SDLK_z:
-                                sonicSprite.x = 425;
-                                sonicSprite.y = 257;
+                                if (isSneaking) break;
+                                sonic.sprite.x = flippedX(sonic,425);
+                                sonic.sprite.y = 257;
                                 break;
                             case SDLK_DOWN:
                             case SDLK_s:
-                                sonicSprite.x = 507;
-                                sonicSprite.y = 265;
-                                sonicSprite.h = 32;
-                                sonicPos.y += 8;
+                                if (isSneaking) break;
+                                sonic.sprite.x = flippedX(sonic, 507);
+                                sonic.sprite.y = 265;
+                                sonic.sprite.h = 32;
+                                sonic.pos.y += 8;
+                                isSneaking = 1;
                                 break;
                             case SDLK_LEFT:
                             case SDLK_q:
-                                sonicPos.x -= 10;
+                                if (!sonic.flipped) flipSprite(&sonic);
+                                sonic.pos.x -= 10;
                                 break;
                             case SDLK_RIGHT:
                             case SDLK_d:
-                                sonicPos.x += 10;
+                                if (sonic.flipped) flipSprite(&sonic);
+                                sonic.pos.x += 10;
                         }
                 }
                 break;
@@ -111,18 +140,20 @@ int main(int argc, char * argv[]) {
                 switch (event.key.keysym.sym) {
                     case SDLK_UP:
                     case SDLK_z:
+                        if (isSneaking) break;
                     case SDLK_DOWN:
                     case SDLK_s:
-                        sonicSprite.x = 43;
-                        sonicSprite.y = 257;
                         switch (event.key.keysym.sym) {
                             case SDLK_DOWN:
                             case SDLK_s:
-                                sonicSprite.w = 32;
-                                sonicSprite.h = 40;
-                                sonicPos.y -= 8;
+                                sonic.sprite.w = 32;
+                                sonic.sprite.h = 40;
+                                sonic.pos.y -= 8;
+                                isSneaking = 0;
                                 break;
                         }
+                        sonic.sprite.x = flippedX(sonic, 43);
+                        sonic.sprite.y = 257;
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:
@@ -131,80 +162,14 @@ int main(int argc, char * argv[]) {
                 break;
             case SDL_MOUSEMOTION:
                 break;
-            case SDL_VIDEORESIZE:
-                SDL_SetVideoMode(event.resize.w, event.resize.h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
-                break;
-
             default: break;
         }
 
         //showImage(titleScreenBg, titleScreenBgSprite, titleScreenBgPos);
         showImage(GreenHillChunks, GreenHillSprite, GreenHillPos);
-        showImage(Sonic, sonicSprite, sonicPos);
+        showImage(sonic.image, sonic.sprite, sonic.pos);
         SDL_Flip(screen);
     }
     SDL_Quit();
     exit(EXIT_SUCCESS);
-}
-
-void safeQuit() {
-    if (screen != NULL) SDL_FreeSurface(screen);
-    SDL_Quit();
-    exit(EXIT_FAILURE);
-}
-
-void showImage(SDL_Surface * image, SDL_Rect spritePos, SDL_Rect screenPos) {
-    SDL_BlitSurface(image, &spritePos, screen, &screenPos);
-}
-
-SDL_Rect getPos(int x, int y, int w, int h) {
-    SDL_Rect pos;
-    pos.x = x;
-    pos.y = y;
-    if (w != -1) pos.w = w;
-    if (h != -1) pos.h = h;
-    return pos;
-}
-Uint32 getRGB(int r, int g, int b) {
-    return SDL_MapRGB(screen -> format, r, g, b);
-}
-
-void addRect(SDL_Surface * screen, int x, int y, int w, int h, Uint32 rgb) {
-    SDL_Rect rectangle;
-    rectangle.x = x;
-    rectangle.y = y;
-    rectangle.w = w;
-    rectangle.h = h;
-    SDL_FillRect(screen, &rectangle, rgb);
-    SDL_Flip(screen);
-}
-
-// sprites.c
-
-void loadImages() {
-    //images[BADNIKS] = loadImage("global/Badniks");
-    //images[CRITTERS] = loadImage("global/Critters");
-    //images[DR_ROBOTNIK] = loadImage("global/Dr Robotnik");
-
-    // sRGB errors, I'll fix them later...
-    //images[DR_ROBOTNIK_GREEN_HILL] = loadImage("global/Dr Robotnik Green Hill Zone");
-    //images[DR_ROBOTNIK_MARBLE] = loadImage("global/Dr Robotnik Marble Zone");
-    //images[DR_ROBOTNIK_SCRAP_BRAIN] = loadImage("global/Dr Robotnik Scrap Brain Zone");
-    //images[DR_ROBOTNIK_SPRING_YARD] = loadImage("global/Dr Robotnik Spring Yard");
-    images[SONIC] = loadImage("global/Sonic");
-    images[TITLE_SCREEN] = loadImage("miscellaneous/Title Screen");
-    images[GREEN_HILL_CHUNKS] = loadImage("stage_chunks/Green Hill Zone Chunks");
-}
-
-SDL_Surface * loadImage(char path[]) {
-    char * newPath = (char *) malloc(strlen(path) + 15);
-    strcpy(newPath, "sprites/");
-    strcat(newPath, path);
-    strcat(newPath, ".png");
-    SDL_Surface * image = IMG_Load(newPath);
-    if (image == NULL) {
-        fprintf(stderr, "Error in SDL_LoadBMP(\"%s\") : %s\n", newPath, SDL_GetError());
-    }
-    free(newPath);
-    return image;
 }
