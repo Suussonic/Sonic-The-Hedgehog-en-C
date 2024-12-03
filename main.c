@@ -3,36 +3,31 @@
 #include <SDL.h>
 #include <SDL_rotozoom.h>
 #include "sprites.c"
+#include "maputils.c"
 
 int WINDOW_WIDTH = 800;
 int WINDOW_HEIGHT = 255;
 
 SDL_Surface * screen;
 
-typedef struct {
-    SDL_Surface * image;
-    SDL_Rect sprite;
-    SDL_Rect pos;
-    int flipped;
-} Sprite;
-
-Sprite sonic;
+MapElement sonic;
 
 void safeQuit() {
+    map_free();
     if (screen != NULL) SDL_FreeSurface(screen);
     SDL_Quit();
     exit(EXIT_FAILURE);
 }
 
-void showImage(SDL_Surface * image, SDL_Rect spritePos, SDL_Rect screenPos) {
-    SDL_BlitSurface(image, &spritePos, screen, &screenPos);
+void showImage(MapElement element) {
+    SDL_BlitSurface(element.texture.image, &element.texture.sprite, screen, &element.pos);
 }
 
-int flippedX(Sprite sprite, int x) {
+int flippedX(SpriteTexture sprite, int x) {
     return sprite.flipped ? sprite.image->w - x - sprite.sprite.w : x;
 }
 
-void flipSprite(Sprite * sprite) {
+void flipSprite(SpriteTexture * sprite) {
     sprite->flipped = !sprite->flipped;
     sprite->image = zoomSurface(sprite->image, -1, 1, 1);
     sprite->sprite.x = sprite->image->w - sprite->sprite.x - sprite->sprite.w;
@@ -70,14 +65,11 @@ int main(int argc, char * argv[]) {
     //SDL_Rect titleScreenBgSprite = getPos(24, 213, 1024, 112);
     //SDL_Rect titleScreenBgPos = getPos(0, 0, -1, -1);
 
-    sonic.image = images[SONIC];
-    sonic.sprite = getPos(43, 257, 32, 40);
-    sonic.pos = getPos(25, 140, -1, -1);
+    sonic = map_add(images[SONIC], getPos(43, 257, 32, 40), 25, 140, 1);
+    MapElement badnik = map_add(images[BADNIKS], getPos(173, 275, 48, 32), 200, 140, 1);
     int isSneaking = 0;
 
-    SDL_Surface * GreenHillChunks = images[GREEN_HILL_CHUNKS];
-    SDL_Rect GreenHillSprite = getPos(25, 264, 255, 255);
-    SDL_Rect GreenHillPos = getPos(0, 0, -1, -1);
+    MapElement GreenHill0 = map_add(images[GREEN_HILL_CHUNKS], getPos(25, 264, 255, 255), 0, 0, 0);
 
     int active = 1;
     SDL_Event event;
@@ -91,7 +83,7 @@ int main(int argc, char * argv[]) {
             case SDL_KEYDOWN:
                 SDL_FillRect(screen, NULL, 0x000000);
                 switch (event.key.keysym.sym) {
-                    case SDLK_F11:;
+                    case SDLK_F11:
                         if (windowFlags == (SDL_HWSURFACE | SDL_DOUBLEBUF)) {
                             windowFlags |= SDL_FULLSCREEN;
                         } else windowFlags = SDL_HWSURFACE | SDL_DOUBLEBUF;
@@ -112,28 +104,39 @@ int main(int argc, char * argv[]) {
                             case SDLK_UP:
                             case SDLK_z:
                                 if (isSneaking) break;
-                                sonic.sprite.x = flippedX(sonic,425);
-                                sonic.sprite.y = 257;
+                                sonic.texture.sprite.x = flippedX(sonic.texture, 425);
+                                sonic.texture.sprite.y = 257;
                                 break;
                             case SDLK_DOWN:
                             case SDLK_s:
                                 if (isSneaking) break;
-                                sonic.sprite.x = flippedX(sonic, 507);
-                                sonic.sprite.y = 265;
-                                sonic.sprite.h = 32;
+                                sonic.texture.sprite.x = flippedX(sonic.texture, 507);
+                                sonic.texture.sprite.y = 265;
+                                sonic.texture.sprite.h = 32;
                                 sonic.pos.y += 8;
                                 isSneaking = 1;
                                 break;
                             case SDLK_LEFT:
                             case SDLK_q:
-                                if (!sonic.flipped) flipSprite(&sonic);
+                                if (!sonic.texture.flipped) flipSprite(&sonic.texture);
                                 sonic.pos.x -= 10;
                                 break;
                             case SDLK_RIGHT:
                             case SDLK_d:
-                                if (sonic.flipped) flipSprite(&sonic);
+                                if (sonic.texture.flipped) flipSprite(&sonic.texture);
                                 sonic.pos.x += 10;
+                                break;
                         }
+                }
+                MapElement * collision = element_colliding(sonic);
+                if (collision) {
+                    printf("\nCollision with %d!", collision->id);
+                    SDL_Rect rectangle;
+                    rectangle.x = 400;
+                    rectangle.y = 100;
+                    rectangle.w = 50;
+                    rectangle.h = 50;
+                    SDL_FillRect(screen, &rectangle, 0x00FF00);
                 }
                 break;
             case SDL_KEYUP:
@@ -146,14 +149,14 @@ int main(int argc, char * argv[]) {
                         switch (event.key.keysym.sym) {
                             case SDLK_DOWN:
                             case SDLK_s:
-                                sonic.sprite.w = 32;
-                                sonic.sprite.h = 40;
+                                sonic.texture.sprite.w = 32;
+                                sonic.texture.sprite.h = 40;
                                 sonic.pos.y -= 8;
                                 isSneaking = 0;
                                 break;
                         }
-                        sonic.sprite.x = flippedX(sonic, 43);
-                        sonic.sprite.y = 257;
+                        sonic.texture.sprite.x = flippedX(sonic.texture, 43);
+                        sonic.texture.sprite.y = 257;
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:
@@ -166,10 +169,10 @@ int main(int argc, char * argv[]) {
         }
 
         //showImage(titleScreenBg, titleScreenBgSprite, titleScreenBgPos);
-        showImage(GreenHillChunks, GreenHillSprite, GreenHillPos);
-        showImage(sonic.image, sonic.sprite, sonic.pos);
+        showImage(GreenHill0);
+        showImage(badnik);
+        showImage(sonic);
         SDL_Flip(screen);
     }
-    SDL_Quit();
-    exit(EXIT_SUCCESS);
+    safeQuit();
 }

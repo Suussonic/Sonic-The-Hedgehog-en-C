@@ -29,7 +29,7 @@ SDL_Surface * loadImage(char path[]) {
 }
 
 void loadImages() {
-    //images[BADNIKS] = loadImage("global/Badniks");
+    images[BADNIKS] = loadImage("global/Badniks");
     //images[CRITTERS] = loadImage("global/Critters");
     //images[DR_ROBOTNIK] = loadImage("global/Dr Robotnik");
 
