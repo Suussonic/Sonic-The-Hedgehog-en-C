@@ -51,7 +51,7 @@ int main(int argc, char * argv[]) {
         safeQuit();
     }
 
-    SDL_WM_SetCaption("sonic The Hedgehog", NULL);
+    SDL_WM_SetCaption("Sonic C Hedgehog", NULL);
 
     //addRect(screen, 50, 50, 200, 100, getRGB(64, 118, 173));
     //addRect(screen, 200, 50, 100, 200, getRGB(64, 140, 110));
