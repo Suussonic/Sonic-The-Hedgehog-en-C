@@ -51,12 +51,12 @@ SDL_Surface * zoomSurf(SpriteTexture * sprite, int zoomx, int zoomy, int smooth)
     return newSurface;
 }
 
-Uint32 color(SDL_Surface * screen, int r, int g, int b) {
+Uint32 color(int r, int g, int b) {
     return SDL_MapRGB(screen->format, r, g, b);
 }
 
-void loadImages(SDL_Surface * screen) {
-    loadImage(BADNIKS, "global/Badniks", color(screen, 67, 153, 49));
+void loadImages() {
+    loadImage(BADNIKS, "global/Badniks", color(67, 153, 49));
     //images[CRITTERS] = loadImage("global/Critters");
     //images[DR_ROBOTNIK] = loadImage("global/Dr Robotnik");
 
@@ -65,8 +65,8 @@ void loadImages(SDL_Surface * screen) {
     //images[DR_ROBOTNIK_MARBLE] = loadImage("global/Dr Robotnik Marble Zone");
     //images[DR_ROBOTNIK_SCRAP_BRAIN] = loadImage("global/Dr Robotnik Scrap Brain Zone");
     //images[DR_ROBOTNIK_SPRING_YARD] = loadImage("global/Dr Robotnik Spring Yard");
-    loadImage(SONIC, "global/sonic", color(screen, 67, 153, 49));
+    loadImage(SONIC, "global/sonic", color(67, 153, 49));
     loadImage(TITLE_SCREEN, "miscellaneous/Title Screen", -1);
     loadImage(GREEN_HILL_BACKGROUND, "stage_background/Green Hill Zone Background", -1);
-    loadImage(GREEN_HILL_CHUNKS, "stage_chunks/Green Hill Zone Chunks", color(screen, 135, 16, 19));
+    loadImage(GREEN_HILL_CHUNKS, "stage_chunks/Green Hill Zone Chunks", color(135, 16, 19));
 }
