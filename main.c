@@ -1,7 +1,6 @@
 #define SDL_MAIN_HANDLED
 
 #include <SDL.h>
-#include <SDL_rotozoom.h>
 #include "sprites.c"
 #include "maputils.c"
 
@@ -29,7 +28,7 @@ int flippedX(SpriteTexture sprite, int x) {
 
 void flipSprite(SpriteTexture * sprite) {
     sprite->flipped = !sprite->flipped;
-    sprite->image = zoomSurface(sprite->image, -1, 1, 1);
+    sprite->image = zoomSurf(sprite, -1, 1, 1);
     sprite->sprite.x = sprite->image->w - sprite->sprite.x - sprite->sprite.w;
 }
 
@@ -59,17 +58,25 @@ int main(int argc, char * argv[]) {
     //addRect(screen, 50, 50, 200, 100, getRGB(64, 118, 173));
     //addRect(screen, 200, 50, 100, 200, getRGB(64, 140, 110));
 
-    loadImages();
+    loadImages(screen);
 
     //SDL_Surface * titleScreenBg = images[TITLE_SCREEN];
     //SDL_Rect titleScreenBgSprite = getPos(24, 213, 1024, 112);
     //SDL_Rect titleScreenBgPos = getPos(0, 0, -1, -1);
 
-    sonic = map_add(images[SONIC], getPos(43, 257, 32, 40), 25, 140, 1);
-    MapElement badnik = map_add(images[BADNIKS], getPos(173, 275, 48, 32), 200, 140, 1);
+    sonic = map_add(SONIC, getPos(43, 257, 32, 40), 25, 140, 1);
+    MapElement badnik = map_add(BADNIKS, getPos(173, 275, 48, 32), 200, 140, 1);
+
+    MapElement background0 = map_add(GREEN_HILL_BACKGROUND, getPos(24, 181, 1024, 32), 0, 0, 0);
+    MapElement background1 = map_add(GREEN_HILL_BACKGROUND, getPos(24, 221, 1024, 16), 0, 32, 0);
+    MapElement background2 = map_add(GREEN_HILL_BACKGROUND, getPos(24, 245, 1024, 16), 0, 48, 0);
+    MapElement background3 = map_add(GREEN_HILL_BACKGROUND, getPos(24, 269, 1024, 48), 0, 64, 0);
+    MapElement background4 = map_add(GREEN_HILL_BACKGROUND, getPos(24, 325, 1024, 40), 0, 112, 0);
+    MapElement background5 = map_add(GREEN_HILL_BACKGROUND, getPos(24, 373, 1024, 104), 0, 152, 0);
+
     int isSneaking = 0;
 
-    MapElement GreenHill0 = map_add(images[GREEN_HILL_CHUNKS], getPos(25, 264, 255, 255), 0, 0, 0);
+    MapElement GreenHill0 = map_add(GREEN_HILL_CHUNKS, getPos(25, 264, 255, 255), 0, 0, 0);
 
     int active = 1;
     SDL_Event event;
@@ -169,6 +176,13 @@ int main(int argc, char * argv[]) {
         }
 
         //showImage(titleScreenBg, titleScreenBgSprite, titleScreenBgPos);
+        showImage(background0);
+        showImage(background1);
+        showImage(background2);
+        showImage(background3);
+        showImage(background4);
+        showImage(background5);
+
         showImage(GreenHill0);
         showImage(badnik);
         showImage(sonic);

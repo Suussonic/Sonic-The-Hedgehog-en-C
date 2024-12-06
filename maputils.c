@@ -1,10 +1,4 @@
 typedef struct {
-    SDL_Surface * image;
-    SDL_Rect sprite;
-    int flipped;
-} SpriteTexture;
-
-typedef struct {
     SpriteTexture texture;
     SDL_Rect pos;
     int collision;
@@ -22,10 +16,11 @@ void map_free() {
 }
 
 
-MapElement map_add(SDL_Surface * image, SDL_Rect sprite, int x, int y, int collision) {
+MapElement map_add(enum ImageEnum image, SDL_Rect sprite, int x, int y, int collision) {
     MapElement element;
-    element.texture.image = image;
+    element.texture.image = images[image];
     element.texture.sprite = sprite;
+    element.texture.backgroundColor = backgroundColors[image];
     element.texture.flipped = 0;
     element.pos.x = x;
     element.pos.y = y;
