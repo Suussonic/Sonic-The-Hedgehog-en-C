@@ -93,7 +93,6 @@ int main(int argc, char * argv[]) {
                 active = 0;
                 break;
             case SDL_KEYDOWN:
-                SDL_FillRect(screen, NULL, 0x000000);
                 switch (event.key.keysym.sym) {
                     case SDLK_F11:;
                         if (windowFlags == (SDL_HWSURFACE | SDL_DOUBLEBUF)) {
