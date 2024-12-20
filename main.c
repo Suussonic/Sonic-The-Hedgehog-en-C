@@ -80,13 +80,12 @@ int main(int argc, char * argv[]) {
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     while (active) {
         SDL_WaitEvent(&event);
+        MapElement * sonic = element(sonicID);
         switch (event.type) {
             case SDL_QUIT:
                 active = 0;
                 break;
-            case SDL_KEYDOWN:
-                SDL_FillRect(screen, NULL, 0x000000);
-                MapElement * sonic = element(sonicID);
+            case SDL_KEYDOWN: {
                 switch (event.key.keysym.sym) {
                     case SDLK_F11:
                         if (windowFlags == (SDL_HWSURFACE | SDL_DOUBLEBUF)) {
@@ -98,16 +97,16 @@ int main(int argc, char * argv[]) {
                         active = 0;
                         break;
                     case SDLK_UP:
-                    case SDLK_z:
+                    case SDLK_w:
                     case SDLK_DOWN:
                     case SDLK_s:
                     case SDLK_LEFT:
-                    case SDLK_q:
+                    case SDLK_a:
                     case SDLK_RIGHT:
                     case SDLK_d: {
                         switch (event.key.keysym.sym) {
                             case SDLK_UP:
-                            case SDLK_z:
+                            case SDLK_w:
                                 if (isSneaking || collided) break;
                                 sonic->texture.sprite.x = flippedX(sonic->texture, 425);
                                 sonic->texture.sprite.y = 257;
@@ -122,7 +121,7 @@ int main(int argc, char * argv[]) {
                                 isSneaking = 1;
                                 break;
                             case SDLK_LEFT:
-                            case SDLK_q:
+                            case SDLK_a:
                                 if (!sonic->texture.flipped) flipSprite(&sonic->texture);
                                 sonic->pos.x -= 10;
                                 break;
@@ -152,10 +151,11 @@ int main(int argc, char * argv[]) {
                     sonic->pos.y -= 8;
                 }
                 break;
+            }
             case SDL_KEYUP:
                 switch (event.key.keysym.sym) {
                     case SDLK_UP:
-                    case SDLK_z:
+                    case SDLK_w:
                         if (isSneaking) break;
                     case SDLK_DOWN:
                     case SDLK_s: {
