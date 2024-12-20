@@ -104,16 +104,16 @@ int main(int argc, char * argv[]) {
                         active = 0;
                         break;
                     case SDLK_UP:
-                    case SDLK_z:
+                    case SDLK_w:
                     case SDLK_DOWN:
                     case SDLK_s:
                     case SDLK_LEFT:
-                    case SDLK_q:
+                    case SDLK_a:
                     case SDLK_RIGHT:
                     case SDLK_d:
                         switch (event.key.keysym.sym) {
                             case SDLK_UP:
-                            case SDLK_z:
+                            case SDLK_w:
                                 if (isSneaking) break;
                                 sonic.sprite.x = flippedX(sonic,425);
                                 sonic.sprite.y = 257;
@@ -128,7 +128,7 @@ int main(int argc, char * argv[]) {
                                 isSneaking = 1;
                                 break;
                             case SDLK_LEFT:
-                            case SDLK_q:
+                            case SDLK_a:
                                 if (!sonic.flipped) flipSprite(&sonic);
                                 sonic.pos.x -= 10;
                                 break;
@@ -142,7 +142,7 @@ int main(int argc, char * argv[]) {
             case SDL_KEYUP:
                 switch (event.key.keysym.sym) {
                     case SDLK_UP:
-                    case SDLK_z:
+                    case SDLK_w:
                         if (isSneaking) break;
                     case SDLK_DOWN:
                     case SDLK_s:
