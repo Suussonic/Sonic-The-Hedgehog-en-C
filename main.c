@@ -38,6 +38,19 @@ SDL_Rect getPos(int x, int y, int w, int h) {
     return pos;
 }
 
+void move(MapElement * element, int x, int y) {
+    element->pos.x += x;
+    element->pos.y += y;
+    if (element->id != sonicID) return;
+
+    if (element->pos.x > 300 && element->pos.x < 515)
+        dx = dx + x < 0
+                ? 0
+                : dx + x > 515
+                    ? 515
+                    : dx + x;
+}
+
 int main(int argc, char * argv[]) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         fprintf(stderr,"Error in SDL_Init : %s\n", SDL_GetError());
@@ -110,25 +123,28 @@ int main(int argc, char * argv[]) {
                                 if (isSneaking || collided) break;
                                 sonic->texture.sprite.x = flippedX(sonic->texture, 425);
                                 sonic->texture.sprite.y = 257;
+                                move(sonic, 0, -10);
                                 break;
                             case SDLK_DOWN:
                             case SDLK_s:
+                                move(sonic, 0, 10);
                                 if (isSneaking || collided) break;
                                 sonic->texture.sprite.x = flippedX(sonic->texture, 507);
                                 sonic->texture.sprite.y = 265;
                                 sonic->texture.sprite.h = 32;
-                                sonic->pos.y += 8;
+                                move(sonic, 0, 8);
                                 isSneaking = 1;
                                 break;
                             case SDLK_LEFT:
                             case SDLK_a:
+                                if (sonic->pos.x <= 0) break;
                                 if (!sonic->texture.flipped) flipSprite(&sonic->texture);
-                                sonic->pos.x -= 10;
+                                move(sonic, -10, 0);
                                 break;
                             case SDLK_RIGHT:
                             case SDLK_d:
                                 if (sonic->texture.flipped) flipSprite(&sonic->texture);
-                                sonic->pos.x += 10;
+                                move(sonic, 10, 0);
                                 break;
                         }
                     }
@@ -140,7 +156,7 @@ int main(int argc, char * argv[]) {
                     sonic->texture.sprite.x = flippedX(sonic->texture, 39);
                     sonic->texture.sprite.y = 807;
                     sonic->texture.sprite.h = 32;
-                    if (!isSneaking) sonic->pos.y += 8;
+                    if (!isSneaking) move(sonic, 0, 8);
                 }
                 if (!collision && collided) {
                     collided = 0;
@@ -148,7 +164,7 @@ int main(int argc, char * argv[]) {
                     sonic->texture.sprite.x = flippedX(sonic->texture, 43);
                     sonic->texture.sprite.y = 257;
                     sonic->texture.sprite.h = 40;
-                    sonic->pos.y -= 8;
+                    move(sonic, 0, -8);
                 }
                 break;
             }
@@ -166,7 +182,7 @@ int main(int argc, char * argv[]) {
                                 if (collided) break;
                                 sonic->texture.sprite.w = 32;
                                 sonic->texture.sprite.h = 40;
-                                sonic->pos.y -= 8;
+                                move(sonic, 0, -8);
                                 break;
                         }
                         if (collided) break;

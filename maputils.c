@@ -9,6 +9,7 @@ typedef struct {
 unsigned int lastID = 0;
 int mapSize = 0;
 MapElement * map = NULL;
+int dx = 0;
 
 void map_free() {
     if (map == NULL) return;
@@ -17,7 +18,9 @@ void map_free() {
 }
 
 void element_show(MapElement element) {
-    SDL_BlitSurface(element.texture.image, &element.texture.sprite, screen, &element.pos);
+    SDL_Rect pos = element.pos;
+    pos.x -= dx;
+    SDL_BlitSurface(element.texture.image, &element.texture.sprite, screen, &pos);
 }
 
 void map_show() {
