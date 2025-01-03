@@ -110,7 +110,7 @@ int main(int argc, char * argv[]) {
     sonicID = map_add(SONIC, getPos(43, 257, 32, 40), 25, 140, 10, 1);
     map_add(BADNIKS, getPos(173, 275, 48, 32), 200, 140, 0, 1);
 
-
+    map_add(GREEN_HILL_BACKGROUND, getPos(24, 181, 3840, 32), 0, 0, -2, 0); // weird hack I came up with to not have missing background
     map_add(GREEN_HILL_BACKGROUND, getPos(24, 181, 3840, 32), 0, 0, -1, 0);
     map_add(GREEN_HILL_BACKGROUND, getPos(24, 221, 3840, 16), 0, 32, -1, 0);
     map_add(GREEN_HILL_BACKGROUND, getPos(24, 245, 3840, 16), 0, 48, -1, 0);
