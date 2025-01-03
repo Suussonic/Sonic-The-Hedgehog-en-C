@@ -1,19 +1,28 @@
 #define SDL_MAIN_HANDLED
 
 #include <SDL.h>
+#include <SDL_mixer.h>
 
 SDL_Surface * screen;
 #include "sprites.c"
 #include "maputils.c"
 
-int WINDOW_WIDTH = 800;
-int WINDOW_HEIGHT = 255;
+const int WINDOW_WIDTH = 800;
+const int WINDOW_HEIGHT = 256;
+int MAX_WIDTH = 0;
 
 int sonicID;
+Mix_Music * bgMusic = NULL;
 
 void safeQuit() {
     map_free();
+
     if (screen != NULL) SDL_FreeSurface(screen);
+    if (bgMusic != NULL) Mix_FreeMusic(bgMusic);
+
+    Mix_CloseAudio();
+    Mix_Quit();
+
     SDL_Quit();
     exit(EXIT_FAILURE);
 }
@@ -43,12 +52,27 @@ void move(MapElement * element, int x, int y) {
     element->pos.y += y;
     if (element->id != sonicID) return;
 
-    if (element->pos.x > 300 && element->pos.x < 515)
+    if (element->pos.x > 300 && element->pos.x < MAX_WIDTH)
         dx = dx + x < 0
                 ? 0
-                : dx + x > 515
-                    ? 515
+                : dx + x > MAX_WIDTH
+                    ? MAX_WIDTH
                     : dx + x;
+}
+
+void loadMusic() {
+    if(Mix_Init(MIX_INIT_MP3) != 0) {
+        fprintf(stderr, "Error in Mix_Init : %s\n", Mix_GetError());
+        safeQuit();
+    }
+    if(Mix_OpenAudio(
+            MIX_DEFAULT_FREQUENCY,
+            MIX_DEFAULT_FORMAT,
+            MIX_DEFAULT_CHANNELS,
+            MIX_DEFAULT_CHANNELS * 512) != 0) {
+        fprintf(stderr, "Error in Mix_OpenAudio : %s\n", Mix_GetError());
+        safeQuit();
+    }
 }
 
 int main(int argc, char * argv[]) {
@@ -62,11 +86,20 @@ int main(int argc, char * argv[]) {
         fprintf(stderr,"Error in SDL_SetVideoMode : %s\n", SDL_GetError());
         safeQuit();
     }
+    loadMusic();
 
+    printf("Loading the game!");
     SDL_WM_SetCaption("Sonic C Hedgehog", NULL);
 
-    //addRect(screen, 50, 50, 200, 100, getRGB(64, 118, 173));
-    //addRect(screen, 200, 50, 100, 200, getRGB(64, 140, 110));
+
+    bgMusic = Mix_LoadMUS("sound/green_hill_zone.mp3");
+    if (bgMusic == NULL) {
+        fprintf(stderr, "Error trying to load \"sound/green_hill_zone.mp3\" : %s\n", Mix_GetError());
+        exit(EXIT_FAILURE);
+    }
+    Mix_PlayMusic(bgMusic, -1);
+    Mix_VolumeMusic(MIX_MAX_VOLUME * .05);
+
 
     loadImages();
 
@@ -77,16 +110,25 @@ int main(int argc, char * argv[]) {
     sonicID = map_add(SONIC, getPos(43, 257, 32, 40), 25, 140, 10, 1);
     map_add(BADNIKS, getPos(173, 275, 48, 32), 200, 140, 0, 1);
 
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 181, 1024, 32), 0, 0, -1, 0);
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 221, 1024, 16), 0, 32, -1, 0);
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 245, 1024, 16), 0, 48, -1, 0);
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 269, 1024, 48), 0, 64, -1, 0);
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 325, 1024, 40), 0, 112, -1, 0);
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 373, 1024, 104), 0, 152, -1, 0);
+
+    map_add(GREEN_HILL_BACKGROUND, getPos(24, 181, 3840, 32), 0, 0, -1, 0);
+    map_add(GREEN_HILL_BACKGROUND, getPos(24, 221, 3840, 16), 0, 32, -1, 0);
+    map_add(GREEN_HILL_BACKGROUND, getPos(24, 245, 3840, 16), 0, 48, -1, 0);
+    map_add(GREEN_HILL_BACKGROUND, getPos(24, 269, 3840, 48), 0, 64, -1, 0);
+    map_add(GREEN_HILL_BACKGROUND, getPos(24, 325, 3840, 40), 0, 112, -1, 0);
+    map_add(GREEN_HILL_BACKGROUND, getPos(24, 373, 3840, 104), 0, 152, -1, 0);
 
     int isSneaking = 0, collided = 0;
 
-    map_add(GREEN_HILL_CHUNKS, getPos(25, 264, 255, 255), 0, 0, 0,  0);
+    const int chunks = 10;
+    for (int i = 0; i < chunks; ++i) {
+        map_add(GREEN_HILL_CHUNKS, getPos(
+                24 + (256 + 8) * (i % 5),
+                264 + (256 + 8) * ((i-1) / 5),
+                256, 256
+        ),256 * i, 0, 0,  0);
+    }
+    MAX_WIDTH = (chunks - 2) * 265 - 73; // don't ask me, I have no idea
 
     int active = 1;
     SDL_Event event;
