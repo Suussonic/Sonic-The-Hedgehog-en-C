@@ -7,8 +7,8 @@ SDL_Surface * screen;
 #include "sprites.c"
 #include "maputils.c"
 
-const int WINDOW_WIDTH = 800;
-const int WINDOW_HEIGHT = 256;
+const int WINDOW_WIDTH = 1000;
+const int WINDOW_HEIGHT = 1000;
 int MAX_WIDTH = 0;
 
 int sonicID;
