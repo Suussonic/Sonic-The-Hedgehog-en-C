@@ -14,6 +14,7 @@ int MAX_WIDTH = 0;
 int sonicID;
 Mix_Music * bgMusic = NULL;
 
+//Mise en place de l'écran
 void safeQuit() {
     map_free();
 
@@ -32,12 +33,14 @@ int flippedX(SpriteTexture sprite, int x) {
     return sprite.flipped ? sprite.image->w - x - sprite.sprite.w : x;
 }
 
+//Permet de retourner un sprite par exemple quand sonic passe da gauche a droite
 void flipSprite(SpriteTexture * sprite) {
     sprite->flipped = !sprite->flipped;
     sprite->image = zoomSurf(sprite, -1, 1, 1);
     sprite->sprite.x = sprite->image->w - sprite->sprite.x - sprite->sprite.w;
 }
 
+//Permet de créer une instance de SDL_Rect pour la position
 SDL_Rect getPos(int x, int y, int w, int h) {
     SDL_Rect pos;
     pos.x = x;
@@ -47,6 +50,7 @@ SDL_Rect getPos(int x, int y, int w, int h) {
     return pos;
 }
 
+//Permet d'effectuer les déplacements de Sonic
 void move(MapElement * element, int x, int y) {
     element->pos.x += x;
     element->pos.y += y;
@@ -60,6 +64,7 @@ void move(MapElement * element, int x, int y) {
                     : dx + x;
 }
 
+//Permet de mettre de la musique
 void loadMusic() {
     if(Mix_Init(MIX_INIT_MP3) != 0) {
         fprintf(stderr, "Error in Mix_Init : %s\n", Mix_GetError());
