@@ -14,7 +14,44 @@ int MAX_WIDTH = 0;
 int sonicID;
 Mix_Music * bgMusic = NULL;
 
-//Mise en place de l'écran
+// Animation state for Sonic
+typedef struct {
+    SDL_Rect frames[8]; // Array of frames for animation
+    int currentFrame;   // Current frame index
+    Uint32 lastUpdateTime; // Time of last frame update
+    int frameDelay;        // Milliseconds between frames
+} Animation;
+
+Animation sonicAnimation;
+
+// Initialisation des frames d'animation
+void initSonicAnimation() {
+    for (int i = 0; i < 8; i++) {
+        sonicAnimation.frames[i].x = i * 32; // Chaque frame mesure 32px de large
+        sonicAnimation.frames[i].y = 0;     // Ligne de l'animation
+        sonicAnimation.frames[i].w = 32;    // Largeur d'une frame
+        sonicAnimation.frames[i].h = 40;    // Hauteur d'une frame
+    }
+    sonicAnimation.currentFrame = 0;
+    sonicAnimation.lastUpdateTime = 0;
+    sonicAnimation.frameDelay = 100; // 100 ms entre les frames
+}
+
+// Mise à jour de l'animation
+void updateSonicAnimation() {
+    Uint32 currentTime = SDL_GetTicks();
+    if (currentTime > sonicAnimation.lastUpdateTime + sonicAnimation.frameDelay) {
+        sonicAnimation.currentFrame = (sonicAnimation.currentFrame + 1) % 8;
+        sonicAnimation.lastUpdateTime = currentTime;
+    }
+}
+
+// Rendu de Sonic avec la frame courante
+void renderSonic(SDL_Surface *screen, SDL_Rect sonicPos) {
+    SDL_BlitSurface(images[SONIC], &sonicAnimation.frames[sonicAnimation.currentFrame], screen, &sonicPos);
+}
+
+// Fonction de sortie sécurisée
 void safeQuit() {
     map_free();
 
@@ -28,19 +65,18 @@ void safeQuit() {
     exit(EXIT_FAILURE);
 }
 
-
 int flippedX(SpriteTexture sprite, int x) {
     return sprite.flipped ? sprite.image->w - x - sprite.sprite.w : x;
 }
 
-//Permet de retourner un sprite par exemple quand sonic passe da gauche a droite
+// Permet de retourner un sprite par exemple quand sonic passe de gauche à droite
 void flipSprite(SpriteTexture * sprite) {
     sprite->flipped = !sprite->flipped;
     sprite->image = zoomSurf(sprite, -1, 1, 1);
     sprite->sprite.x = sprite->image->w - sprite->sprite.x - sprite->sprite.w;
 }
 
-//Permet de créer une instance de SDL_Rect pour la position
+// Permet de créer une instance de SDL_Rect pour la position
 SDL_Rect getPos(int x, int y, int w, int h) {
     SDL_Rect pos;
     pos.x = x;
@@ -50,7 +86,7 @@ SDL_Rect getPos(int x, int y, int w, int h) {
     return pos;
 }
 
-//Permet d'effectuer les déplacements de Sonic
+// Permet d'effectuer les déplacements de Sonic
 void move(MapElement * element, int x, int y) {
     element->pos.x += x;
     element->pos.y += y;
@@ -64,7 +100,7 @@ void move(MapElement * element, int x, int y) {
                     : dx + x;
 }
 
-//Permet de mettre de la musique
+// Permet de mettre de la musique
 void loadMusic() {
     if(Mix_Init(MIX_INIT_MP3) != 0) {
         fprintf(stderr, "Error in Mix_Init : %s\n", Mix_GetError());
@@ -91,11 +127,11 @@ int main(int argc, char * argv[]) {
         fprintf(stderr,"Error in SDL_SetVideoMode : %s\n", SDL_GetError());
         safeQuit();
     }
+
     loadMusic();
 
     printf("Loading the game!");
     SDL_WM_SetCaption("Sonic C Hedgehog", NULL);
-
 
     bgMusic = Mix_LoadMUS("sound/green_hill_zone.mp3");
     if (bgMusic == NULL) {
@@ -105,12 +141,8 @@ int main(int argc, char * argv[]) {
     Mix_PlayMusic(bgMusic, -1);
     Mix_VolumeMusic(MIX_MAX_VOLUME * .05);
 
-
     loadImages();
-
-    //SDL_Surface * titleScreenBg = images[TITLE_SCREEN];
-    //SDL_Rect titleScreenBgSprite = getPos(24, 213, 1024, 112);
-    //SDL_Rect titleScreenBgPos = getPos(0, 0, -1, -1);
+    initSonicAnimation();
 
     sonicID = map_add(SONIC, getPos(43, 257, 32, 40), 25, 140, 10, 1);
     map_add(BADNIKS, getPos(173, 275, 48, 32), 200, 140, 0, 1);
@@ -247,6 +279,8 @@ int main(int argc, char * argv[]) {
             default: break;
         }
 
+        updateSonicAnimation();
+        renderSonic(screen, sonic->pos);
         map_show();
         SDL_Flip(screen);
     }
