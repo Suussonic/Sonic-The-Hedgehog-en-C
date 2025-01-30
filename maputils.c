@@ -38,7 +38,7 @@ int compareElements(const void * a, const void * b) {
     return e0->z > e1->z;
 }
 
-unsigned int map_add(enum ImageEnum image, SDL_Rect sprite, int x, int y, int z, int collision) {
+unsigned int map_add(ImageEnum image, SDL_Rect sprite, int x, int y, int z, int collision) {
     MapElement element;
     element.texture.image = images[image];
     element.texture.sprite = sprite;

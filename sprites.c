@@ -4,7 +4,7 @@
 SDL_Surface * images[85];
 int backgroundColors[85];
 
-enum ImageEnum {
+typedef enum ImageEnum {
     BADNIKS = 0,
     CRITTERS = 1,
     DR_ROBOTNIK = 2,
@@ -16,16 +16,16 @@ enum ImageEnum {
     TITLE_SCREEN = 14,
     GREEN_HILL_BACKGROUND = 23,
     GREEN_HILL_CHUNKS = 48
-};
+} ImageEnum;
 
-typedef struct {
+typedef struct SpriteTexture {
     SDL_Surface * image;
     SDL_Rect sprite;
     int backgroundColor;
     int flipped;
 } SpriteTexture;
 
-void loadImage(enum ImageEnum img, char path[], Uint32 backgroundColor) {
+void loadImage(ImageEnum img, char path[], Uint32 backgroundColor) {
     char * newPath = (char *) malloc(strlen(path) + 15);
     strcpy(newPath, "sprites/");
     strcat(newPath, path);

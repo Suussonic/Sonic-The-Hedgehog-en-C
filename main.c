@@ -112,17 +112,17 @@ int main(int argc, char * argv[]) {
     //SDL_Rect titleScreenBgSprite = getPos(24, 213, 1024, 112);
     //SDL_Rect titleScreenBgPos = getPos(0, 0, -1, -1);
 
-    sonicID = map_add(SONIC, getPos(43, 257, 32, 40), 25, 140, 10, 1);
-    sonicID = map_add(SONIC, getPos(43, 257, 32, 40), 25, 140, 10, 1);
-    map_add(BADNIKS, getPos(173, 275, 48, 32), 200, 140, 0, 1);
-    
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 181, 3840, 32), 0, 0, -2, 0); // weird hack I came up with to not have missing background
     map_add(GREEN_HILL_BACKGROUND, getPos(24, 181, 3840, 32), 0, 0, -1, 0);
     map_add(GREEN_HILL_BACKGROUND, getPos(24, 221, 3840, 16), 0, 32, -1, 0);
     map_add(GREEN_HILL_BACKGROUND, getPos(24, 245, 3840, 16), 0, 48, -1, 0);
     map_add(GREEN_HILL_BACKGROUND, getPos(24, 269, 3840, 48), 0, 64, -1, 0);
     map_add(GREEN_HILL_BACKGROUND, getPos(24, 325, 3840, 40), 0, 112, -1, 0);
     map_add(GREEN_HILL_BACKGROUND, getPos(24, 373, 3840, 104), 0, 152, -1, 0);
+
+    sonicID = map_add(SONIC, getPos(43, 257, 32, 40), 25, 140, 10, 1);
+
+    map_add(BADNIKS, getPos(173, 275, 48, 32), 200, 140, 0, 1);
+
 
     int isSneaking = 0, collided = 0;
 
