@@ -8,10 +8,10 @@ SDL_Surface * screen;
 #include "maputils.c"
 
 const int WINDOW_WIDTH = 1000;
-const int WINDOW_HEIGHT = 1000;
+const int WINDOW_HEIGHT = 255;
 int MAX_WIDTH = 0;
 
-int sonicID;
+MapElement * sonic;
 Mix_Music * bgMusic = NULL;
 
 //Mise en place de l'écran
@@ -29,8 +29,8 @@ void safeQuit() {
 }
 
 
-int flippedX(SpriteTexture sprite, int x) {
-    return sprite.flipped ? sprite.image->w - x - sprite.sprite.w : x;
+int flippedX(SpriteTexture * sprite, int x) {
+    return sprite->flipped ? sprite->image->w - x - sprite->sprite.w : x;
 }
 
 //Permet de retourner un sprite par exemple quand sonic passe da gauche a droite
@@ -54,7 +54,7 @@ SDL_Rect getPos(int x, int y, int w, int h) {
 void move(MapElement * element, int x, int y) {
     element->pos.x += x;
     element->pos.y += y;
-    if (element->id != sonicID) return;
+    if (element != sonic) return;
 
     if (element->pos.x > 300 && element->pos.x < MAX_WIDTH)
         dx = dx + x < 0
@@ -119,7 +119,7 @@ int main(int argc, char * argv[]) {
     map_add(GREEN_HILL_BACKGROUND, getPos(24, 325, 3840, 40), 0, 112, -1, 0);
     map_add(GREEN_HILL_BACKGROUND, getPos(24, 373, 3840, 104), 0, 152, -1, 0);
 
-    sonicID = map_add(SONIC, getPos(43, 257, 32, 40), 25, 140, 10, 1);
+    sonic = map_add(SONIC, getPos(43, 257, 32, 40), 25, 140, 10, 1);
 
     map_add(BADNIKS, getPos(173, 275, 48, 32), 200, 140, 0, 1);
 
@@ -141,7 +141,6 @@ int main(int argc, char * argv[]) {
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     while (active) {
         SDL_WaitEvent(&event);
-        MapElement * sonic = element(sonicID);
         switch (event.type) {
             case SDL_QUIT:
                 active = 0;
@@ -169,29 +168,29 @@ int main(int argc, char * argv[]) {
                             case SDLK_UP:
                             case SDLK_w:
                                 if (isSneaking || collided) break;
-                                sonic->texture.sprite.x = flippedX(sonic->texture, 425);
-                                sonic->texture.sprite.y = 257;
+                                sonic->texture->sprite.x = flippedX(sonic->texture, 425);
+                                sonic->texture->sprite.y = 257;
                                 move(sonic, 0, -10);
                                 break;
                             case SDLK_DOWN:
                             case SDLK_s:
                                 move(sonic, 0, 10);
                                 if (isSneaking || collided) break;
-                                sonic->texture.sprite.x = flippedX(sonic->texture, 507);
-                                sonic->texture.sprite.y = 265;
-                                sonic->texture.sprite.h = 32;
+                                sonic->texture->sprite.x = flippedX(sonic->texture, 507);
+                                sonic->texture->sprite.y = 265;
+                                sonic->texture->sprite.h = 32;
                                 move(sonic, 0, 8);
                                 isSneaking = 1;
                                 break;
                             case SDLK_LEFT:
                             case SDLK_a:
                                 if (sonic->pos.x <= 0) break;
-                                if (!sonic->texture.flipped) flipSprite(&sonic->texture);
+                                if (!sonic->texture->flipped) flipSprite(sonic->texture);
                                 move(sonic, -10, 0);
                                 break;
                             case SDLK_RIGHT:
                             case SDLK_d:
-                                if (sonic->texture.flipped) flipSprite(&sonic->texture);
+                                if (sonic->texture->flipped) flipSprite(sonic->texture);
                                 move(sonic, 10, 0);
                                 break;
                         }
@@ -200,18 +199,18 @@ int main(int argc, char * argv[]) {
                 MapElement * collision = element_colliding(sonic);
                 if (collision && !collided) {
                     collided = 1;
-                    sonic->texture.sprite.w = 40;
-                    sonic->texture.sprite.x = flippedX(sonic->texture, 39);
-                    sonic->texture.sprite.y = 807;
-                    sonic->texture.sprite.h = 32;
+                    sonic->texture->sprite.w = 40;
+                    sonic->texture->sprite.x = flippedX(sonic->texture, 39);
+                    sonic->texture->sprite.y = 807;
+                    sonic->texture->sprite.h = 32;
                     if (!isSneaking) move(sonic, 0, 8);
                 }
                 if (!collision && collided) {
                     collided = 0;
-                    sonic->texture.sprite.w = 32;
-                    sonic->texture.sprite.x = flippedX(sonic->texture, 43);
-                    sonic->texture.sprite.y = 257;
-                    sonic->texture.sprite.h = 40;
+                    sonic->texture->sprite.w = 32;
+                    sonic->texture->sprite.x = flippedX(sonic->texture, 43);
+                    sonic->texture->sprite.y = 257;
+                    sonic->texture->sprite.h = 40;
                     move(sonic, 0, -8);
                 }
                 break;
@@ -228,14 +227,14 @@ int main(int argc, char * argv[]) {
                             case SDLK_s:
                                 isSneaking = 0;
                                 if (collided) break;
-                                sonic->texture.sprite.w = 32;
-                                sonic->texture.sprite.h = 40;
+                                sonic->texture->sprite.w = 32;
+                                sonic->texture->sprite.h = 40;
                                 move(sonic, 0, -8);
                                 break;
                         }
                         if (collided) break;
-                        sonic->texture.sprite.x = flippedX(sonic->texture, 43);
-                        sonic->texture.sprite.y = 257;
+                        sonic->texture->sprite.x = flippedX(sonic->texture, 43);
+                        sonic->texture->sprite.y = 257;
                     }
                 }
                 break;
