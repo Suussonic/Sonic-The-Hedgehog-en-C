@@ -170,11 +170,9 @@ int main(int argc, char * argv[]) {
                                 if (isSneaking || collided) break;
                                 sonic->texture->sprite.x = flippedX(sonic->texture, 425);
                                 sonic->texture->sprite.y = 257;
-                                move(sonic, 0, -10);
                                 break;
                             case SDLK_DOWN:
                             case SDLK_s:
-                                move(sonic, 0, 10);
                                 if (isSneaking || collided) break;
                                 sonic->texture->sprite.x = flippedX(sonic->texture, 507);
                                 sonic->texture->sprite.y = 265;
