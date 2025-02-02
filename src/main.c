@@ -1,6 +1,7 @@
 #define SDL_MAIN_HANDLED
 
 #include <maputils.h>
+#include <green_hill.h>
 #include <SDL_mixer.h>
 
 SDL_Surface * screen;
@@ -36,16 +37,6 @@ void flipSprite(SpriteTexture * sprite) {
     sprite->flipped = !sprite->flipped;
     sprite->image = zoomSurf(sprite, -1, 1, 1);
     sprite->sprite.x = sprite->image->w - sprite->sprite.x - sprite->sprite.w;
-}
-
-//Permet de créer une instance de SDL_Rect pour la position
-SDL_Rect getPos(int x, int y, int w, int h) {
-    SDL_Rect pos;
-    pos.x = x;
-    pos.y = y;
-    if (w != -1) pos.w = w;
-    if (h != -1) pos.h = h;
-    return pos;
 }
 
 //Permet d'effectuer les déplacements de Sonic
@@ -108,24 +99,14 @@ int main(int argc, char * argv[]) {
     Mix_PlayMusic(bgMusic, -1);
     Mix_VolumeMusic(MIX_MAX_VOLUME * .05);
 
-
     loadImages(screen);
 
     //SDL_Surface * titleScreenBg = images[TITLE_SCREEN];
     //SDL_Rect titleScreenBgSprite = getPos(24, 213, 1024, 112);
     //SDL_Rect titleScreenBgPos = getPos(0, 0, -1, -1);
 
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 245, 3584, 112), 0, 0, -2, 0);
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 365, 3584, 144), 0, 112, -2, 0);
-    map_add(GREEN_HILL_FOREGROUND, getPos(24, 264, 10240, 1280), 0, -765, -1, 0);
-    MAX_WIDTH = 10240;
-
     sonic = map_add(SONIC, getPos(43, 257, 32, 40), 25, 140, 10, 1);
-
-    map_add(BADNIKS, getPos(173, 275, 48, 32), 200, 140, 0, 1);
-
-    map_add_collision(getPos(400, 130, 50, 50), 10);
-
+    MAX_WIDTH = load_stage();
 
     int isSneaking = 0, collided = 0;
     int active = 1;

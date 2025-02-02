@@ -19,15 +19,17 @@ void map_free() {
 }
 
 void element_show(MapElement * element) {
-    if (element->texture->image == NULL) return;
+    SDL_Surface * image = element->texture->image;
+    // debug
+    if (image == NULL) image = getImage(BADNIKS);//return;
 
     SDL_Rect pos = element->pos;
-    if (element->texture->image != getImage(GREEN_HILL_BACKGROUND)) {
+    if (image == NULL || image != getImage(GREEN_HILL_BACKGROUND)) {
         pos.x -= dx;
         pos.y -= dy;
     }
 
-    SDL_BlitSurface(element->texture->image, &element->texture->sprite, mapScreen, &pos);
+    SDL_BlitSurface(image, &element->texture->sprite, mapScreen, &pos);
 }
 
 void map_show() {
@@ -134,4 +136,13 @@ MapElement * element_colliding(MapElement * element) {
             return el;
     }
     return NULL;
+}
+
+SDL_Rect getPos(int x, int y, int w, int h) {
+    SDL_Rect pos;
+    pos.x = x;
+    pos.y = y;
+    if (w != -1) pos.w = w;
+    if (h != -1) pos.h = h;
+    return pos;
 }

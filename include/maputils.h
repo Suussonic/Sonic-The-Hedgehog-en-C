@@ -28,4 +28,6 @@ void map_remove(MapElement * element);
 int elements_colliding(MapElement * e0, MapElement * e1);
 MapElement * element_colliding(MapElement * element);
 
+SDL_Rect getPos(int x, int y, int w, int h);
+
 #endif

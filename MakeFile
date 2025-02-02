@@ -9,18 +9,22 @@ else
 	RM= rm
 endif
 LSDL= -lmingw32 -lSDLmain -lSDL -lSDL_image -lSDL_ttf -lSDL_gfx -lSDL_mixer
+INCLUDES= $(INCL) $(ISDL)
 
 exe : main.o
-	gcc -o Sonic main.o maputils.o sprites.o $(INCL) $(LSDL)
+	gcc -o Sonic main.o green_hill.o maputils.o sprites.o $(INCL) $(LSDL)
 
-main.o : $(SRC)main.c maputils.o
-	gcc -c $(SRC)main.c $(INCL) $(ISDL)
+main.o : $(SRC)main.c green_hill.o
+	gcc -c $(SRC)main.c $(INCLUDES)
+
+green_hill.o : $(SRC)green_hill.c maputils.o
+	gcc -c $(SRC)green_hill.c $(INCLUDES)
 
 maputils.o : $(SRC)maputils.c $(INC)maputils.h sprites.o
-	gcc -c $(SRC)maputils.c $(INCL) $(ISDL)
+	gcc -c $(SRC)maputils.c $(INCLUDES)
 
 sprites.o : $(SRC)sprites.c $(INC)sprites.h
-	gcc -c $(SRC)sprites.c $(INCL) $(ISDL)
+	gcc -c $(SRC)sprites.c $(INCLUDES)
 
 clean :
 	$(RM) *.o
