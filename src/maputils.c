@@ -6,7 +6,7 @@
 int mapSize = 0;
 SDL_Surface * mapScreen = NULL;
 MapElement ** map = NULL;
-int dx = 0;
+int dx = 0, dy = 0;
 
 void map_init(SDL_Surface * screen) {
     mapScreen = screen;
@@ -19,8 +19,14 @@ void map_free() {
 }
 
 void element_show(MapElement * element) {
+    if (element->texture->image == NULL) return;
+
     SDL_Rect pos = element->pos;
-    pos.x -= dx;
+    if (element->texture->image != getImage(GREEN_HILL_BACKGROUND)) {
+        pos.x -= dx;
+        pos.y -= dy;
+    }
+
     SDL_BlitSurface(element->texture->image, &element->texture->sprite, mapScreen, &pos);
 }
 
@@ -32,11 +38,17 @@ void map_show() {
     }
 }
 
-void setOffset(int offset) {
+void setOffsetX(int offset) {
     dx = offset;
 }
-int getOffset() {
+int getOffsetX() {
     return dx;
+}
+void setOffsetY(int offset) {
+    dy = offset;
+}
+int getOffsetY() {
+    return dy;
 }
 
 int compareElements(const void * a, const void * b) {
@@ -53,12 +65,16 @@ MapElement * map_add(ImageEnum image, SDL_Rect sprite, int x, int y, int z, int 
         fprintf(stderr, "An error occured while adding a new element with image %d to the map", image);
         return NULL;
     }
+
     element->texture = spriteTexture;
-    element->texture->image;
-    element->texture->image = getImage(image);
+    element->texture->image = NULL;
+    if (image != -1) {
+        element->texture->image = getImage(image);
+        element->texture->backgroundColor = getBackGroundColor(image);
+    }
     element->texture->sprite = sprite;
-    element->texture->backgroundColor = getBackGroundColor(image);
     element->texture->flipped = 0;
+
     SDL_Rect pos = {.x = x, .y = y};
     element->pos = pos;
     element->z = z;
@@ -77,6 +93,11 @@ MapElement * map_add(ImageEnum image, SDL_Rect sprite, int x, int y, int z, int 
     } else fprintf(stderr, "Couldn't reallocate map memory!");
     return element;
 }
+
+void map_add_collision(SDL_Rect square, int z) {
+    map_add(-1, square, square.x, square.y, z, 1);
+}
+
 
 void map_remove(MapElement * element) {
     int found = 0;

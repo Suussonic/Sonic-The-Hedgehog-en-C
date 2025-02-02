@@ -16,10 +16,13 @@ void map_free();
 void map_show();
 void element_show(MapElement * element);
 
-void setOffset(int dx);
-int getOffset();
+void setOffsetX(int offset);
+int getOffsetX();
+void setOffsetY(int offset);
+int getOffsetY();
 
 MapElement * map_add(ImageEnum image, SDL_Rect sprite, int x, int y, int z, int collision);
+void map_add_collision(SDL_Rect square, int z);
 void map_remove(MapElement * element);
 
 int elements_colliding(MapElement * e0, MapElement * e1);

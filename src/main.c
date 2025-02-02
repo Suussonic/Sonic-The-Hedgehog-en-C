@@ -6,7 +6,7 @@
 SDL_Surface * screen;
 
 const int WINDOW_WIDTH = 1000;
-const int WINDOW_HEIGHT = 255;
+const int WINDOW_HEIGHT = 256;
 int MAX_WIDTH = 0;
 
 MapElement * sonic;
@@ -55,13 +55,15 @@ void move(MapElement * element, int x, int y) {
     if (element != sonic) return;
 
     if (element->pos.x > 300 && element->pos.x < MAX_WIDTH) {
-        int dx = getOffset() + x;
-        setOffset(dx < 0
+        int dx = getOffsetX() + x;
+        setOffsetX(dx < 0
                 ? 0
                 : dx > MAX_WIDTH
                     ? MAX_WIDTH
                     : dx);
     }
+    // temporary test values
+    if (element->pos.y < 20 || element->pos.y > 226) setOffsetY(getOffsetY() + y);
 }
 
 //Permet de mettre de la musique
@@ -113,35 +115,25 @@ int main(int argc, char * argv[]) {
     //SDL_Rect titleScreenBgSprite = getPos(24, 213, 1024, 112);
     //SDL_Rect titleScreenBgPos = getPos(0, 0, -1, -1);
 
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 181, 3840, 32), 0, 0, -1, 0);
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 221, 3840, 16), 0, 32, -1, 0);
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 245, 3840, 16), 0, 48, -1, 0);
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 269, 3840, 48), 0, 64, -1, 0);
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 325, 3840, 40), 0, 112, -1, 0);
-    map_add(GREEN_HILL_BACKGROUND, getPos(24, 373, 3840, 104), 0, 152, -1, 0);
+    map_add(GREEN_HILL_BACKGROUND, getPos(24, 245, 3584, 112), 0, 0, -2, 0);
+    map_add(GREEN_HILL_BACKGROUND, getPos(24, 365, 3584, 144), 0, 112, -2, 0);
+    map_add(GREEN_HILL_FOREGROUND, getPos(24, 264, 10240, 1280), 0, -765, -1, 0);
+    MAX_WIDTH = 10240;
 
     sonic = map_add(SONIC, getPos(43, 257, 32, 40), 25, 140, 10, 1);
 
     map_add(BADNIKS, getPos(173, 275, 48, 32), 200, 140, 0, 1);
 
+    map_add_collision(getPos(400, 130, 50, 50), 10);
+
 
     int isSneaking = 0, collided = 0;
-
-    const int chunks = 10;
-    for (int i = 0; i < chunks; ++i) {
-        map_add(GREEN_HILL_CHUNKS, getPos(
-                24 + (256 + 8) * (i % 5),
-                264 + (256 + 8) * ((i-1) / 5),
-                256, 256
-        ),256 * i, 0, 0,  0);
-    }
-    MAX_WIDTH = (chunks - 2) * 265 - 73; // don't ask me, I have no idea
-
     int active = 1;
     SDL_Event event;
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     while (active) {
         SDL_WaitEvent(&event);
+        SDL_FillRect(screen, NULL, color(0, 0, 0));
         switch (event.type) {
             case SDL_QUIT:
                 active = 0;
@@ -171,9 +163,11 @@ int main(int argc, char * argv[]) {
                                 if (isSneaking || collided) break;
                                 sonic->texture->sprite.x = flippedX(sonic->texture, 425);
                                 sonic->texture->sprite.y = 257;
+                                move(sonic, 0, -10);
                                 break;
                             case SDLK_DOWN:
                             case SDLK_s:
+                                move(sonic, 0, 10);
                                 if (isSneaking || collided) break;
                                 sonic->texture->sprite.x = flippedX(sonic->texture, 507);
                                 sonic->texture->sprite.y = 265;

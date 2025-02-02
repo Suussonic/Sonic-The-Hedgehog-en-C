@@ -3,8 +3,8 @@
 #include <SDL_image.h>
 #include <SDL_rotozoom.h>
 
-SDL_Surface * images[85];
-int backgroundColors[85];
+SDL_Surface * images[17];
+int backgroundColors[17];
 
 SDL_Surface * spritesScreen = NULL;
 
@@ -47,17 +47,14 @@ Uint32 color(int r, int g, int b) {
 
 void loadImages(SDL_Surface * screen) {
     spritesScreen = screen;
-    loadImage(BADNIKS, "global/Badniks", color(67, 153, 49));
+    loadImage(BADNIKS, "global/badniks", color(67, 153, 49));
     //images[CRITTERS] = loadImage("global/Critters");
     //images[DR_ROBOTNIK] = loadImage("global/Dr Robotnik");
 
     // sRGB errors, I'll fix them later...
     //images[DR_ROBOTNIK_GREEN_HILL] = loadImage("global/Dr Robotnik Green Hill Zone");
-    //images[DR_ROBOTNIK_MARBLE] = loadImage("global/Dr Robotnik Marble Zone");
-    //images[DR_ROBOTNIK_SCRAP_BRAIN] = loadImage("global/Dr Robotnik Scrap Brain Zone");
-    //images[DR_ROBOTNIK_SPRING_YARD] = loadImage("global/Dr Robotnik Spring Yard");
     loadImage(SONIC, "global/sonic", color(67, 153, 49));
-    loadImage(TITLE_SCREEN, "miscellaneous/Title Screen", -1);
-    loadImage(GREEN_HILL_BACKGROUND, "stage_background/Green Hill Zone Background", -1);
-    loadImage(GREEN_HILL_CHUNKS, "stage_chunks/Green Hill Zone Chunks", color(135, 16, 19));
+    //loadImage(TITLE_SCREEN, "miscellaneous/Title Screen", -1);
+    loadImage(GREEN_HILL_BACKGROUND, "stage/background", -1);
+    loadImage(GREEN_HILL_FOREGROUND, "stage/foreground", color(135, 16, 19));
 }

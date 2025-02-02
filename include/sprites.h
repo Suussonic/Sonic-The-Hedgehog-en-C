@@ -7,14 +7,11 @@ typedef enum ImageEnum {
     BADNIKS = 0,
     CRITTERS = 1,
     DR_ROBOTNIK = 2,
-    DR_ROBOTNIK_GREEN_HILL = 3,
-    DR_ROBOTNIK_MARBLE = 4,
-    DR_ROBOTNIK_SCRAP_BRAIN = 5,
-    DR_ROBOTNIK_SPRING_YARD = 6,
-    SONIC = 7,
-    TITLE_SCREEN = 14,
-    GREEN_HILL_BACKGROUND = 23,
-    GREEN_HILL_CHUNKS = 48
+    SONIC = 3,
+    TITLE_SCREEN = 10,
+    GREEN_HILL_BACKGROUND = 13,
+    GREEN_HILL_FOREGROUND = 14,
+    DR_ROBOTNIK_GREEN_HILL = 15
 } ImageEnum;
 
 typedef struct SpriteTexture {
