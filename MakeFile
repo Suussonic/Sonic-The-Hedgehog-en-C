@@ -3,14 +3,12 @@ INC= include/
 INCL= -I$(INC)
 ifdef OS # Windows' case
 	ISDL= -IC:\\msys64\\mingw64\\include\\SDL
-	EXT= dll
 	RM= del
 else
 	ISDL= -I/c/msys64/mingw64/include/SDL
-	EXT= so
 	RM= rm
 endif
-LSDL=-lmingw32 -lSDLmain -lSDL -lSDL_image -lSDL_ttf -lSDL_gfx -lSDL_mixer
+LSDL= -lmingw32 -lSDLmain -lSDL -lSDL_image -lSDL_ttf -lSDL_gfx -lSDL_mixer
 
 exe : main.o
 	gcc -o Sonic main.o maputils.o sprites.o $(INCL) $(LSDL)
@@ -26,4 +24,3 @@ sprites.o : $(SRC)sprites.c $(INC)sprites.h
 
 clean :
 	$(RM) *.o
-
