@@ -1,33 +1,16 @@
+#include <sprites.h>
+
 #include <SDL_image.h>
 #include <SDL_rotozoom.h>
 
 SDL_Surface * images[85];
 int backgroundColors[85];
 
-typedef enum ImageEnum {
-    BADNIKS = 0,
-    CRITTERS = 1,
-    DR_ROBOTNIK = 2,
-    DR_ROBOTNIK_GREEN_HILL = 3,
-    DR_ROBOTNIK_MARBLE = 4,
-    DR_ROBOTNIK_SCRAP_BRAIN = 5,
-    DR_ROBOTNIK_SPRING_YARD = 6,
-    SONIC = 7,
-    TITLE_SCREEN = 14,
-    GREEN_HILL_BACKGROUND = 23,
-    GREEN_HILL_CHUNKS = 48
-} ImageEnum;
-
-typedef struct SpriteTexture {
-    SDL_Surface * image;
-    SDL_Rect sprite;
-    int backgroundColor;
-    int flipped;
-} SpriteTexture;
+SDL_Surface * spritesScreen = NULL;
 
 void loadImage(ImageEnum img, char path[], Uint32 backgroundColor) {
     char * newPath = (char *) malloc(strlen(path) + 15);
-    strcpy(newPath, "sprites/");
+    strcpy(newPath, "assets/sprites/");
     strcat(newPath, path);
     strcat(newPath, ".png");
     SDL_Surface * image = IMG_Load(newPath);
@@ -51,11 +34,19 @@ SDL_Surface * zoomSurf(SpriteTexture * sprite, int zoomx, int zoomy, int smooth)
     return newSurface;
 }
 
-Uint32 color(int r, int g, int b) {
-    return SDL_MapRGB(screen->format, r, g, b);
+int getBackGroundColor(ImageEnum image) {
+    return backgroundColors[image];
+}
+SDL_Surface * getImage(ImageEnum image) {
+    return images[image];
 }
 
-void loadImages() {
+Uint32 color(int r, int g, int b) {
+    return SDL_MapRGB(spritesScreen->format, r, g, b);
+}
+
+void loadImages(SDL_Surface * screen) {
+    spritesScreen = screen;
     loadImage(BADNIKS, "global/Badniks", color(67, 153, 49));
     //images[CRITTERS] = loadImage("global/Critters");
     //images[DR_ROBOTNIK] = loadImage("global/Dr Robotnik");

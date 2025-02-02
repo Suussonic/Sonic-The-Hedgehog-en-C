@@ -1,13 +1,16 @@
-typedef struct MapElement {
-    SpriteTexture * texture;
-    SDL_Rect pos;
-    int collision;
-    int z;
-} MapElement;
+#include <maputils.h>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 int mapSize = 0;
+SDL_Surface * mapScreen = NULL;
 MapElement ** map = NULL;
 int dx = 0;
+
+void map_init(SDL_Surface * screen) {
+    mapScreen = screen;
+}
 
 void map_free() {
     if (map == NULL) return;
@@ -18,7 +21,7 @@ void map_free() {
 void element_show(MapElement * element) {
     SDL_Rect pos = element->pos;
     pos.x -= dx;
-    SDL_BlitSurface(element->texture->image, &element->texture->sprite, screen, &pos);
+    SDL_BlitSurface(element->texture->image, &element->texture->sprite, mapScreen, &pos);
 }
 
 void map_show() {
@@ -27,6 +30,13 @@ void map_show() {
     for (int i = 0; i < mapSize; ++i) {
         element_show(map[i]);
     }
+}
+
+void setOffset(int offset) {
+    dx = offset;
+}
+int getOffset() {
+    return dx;
 }
 
 int compareElements(const void * a, const void * b) {
@@ -45,9 +55,9 @@ MapElement * map_add(ImageEnum image, SDL_Rect sprite, int x, int y, int z, int 
     }
     element->texture = spriteTexture;
     element->texture->image;
-    element->texture->image = images[image];
+    element->texture->image = getImage(image);
     element->texture->sprite = sprite;
-    element->texture->backgroundColor = backgroundColors[image];
+    element->texture->backgroundColor = getBackGroundColor(image);
     element->texture->flipped = 0;
     SDL_Rect pos = {.x = x, .y = y};
     element->pos = pos;
