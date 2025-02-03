@@ -11,7 +11,7 @@ endif
 LSDL= -lmingw32 -lSDLmain -lSDL -lSDL_image -lSDL_ttf -lSDL_gfx -lSDL_mixer
 INCLUDES= $(INCL) $(ISDL)
 
-exe : main.o
+all : main.o
 	gcc -o Sonic main.o green_hill.o maputils.o sprites.o $(INCL) $(LSDL)
 
 main.o : $(SRC)main.c green_hill.o
