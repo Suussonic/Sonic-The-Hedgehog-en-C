@@ -130,12 +130,13 @@ int elements_colliding(MapElement * e0, MapElement * e1) {
 MapElement * element_colliding(MapElement * element) {
     if (!element->collision) return NULL;
 
+    MapElement * found = NULL;
     for (int i = 0; i < mapSize; ++i) {
         MapElement * el = map[i];
-        if (el != element && elements_colliding(element, el))
-            return el;
+        if (el != element && elements_colliding(element, el) && (!found || found->pos.y > el->pos.y))
+            found = el;
     }
-    return NULL;
+    return found;
 }
 
 SDL_Rect getPos(int x, int y, int w, int h) {

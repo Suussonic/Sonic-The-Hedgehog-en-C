@@ -57,6 +57,13 @@ void move(MapElement * element, int x, int y) {
     if (element->pos.y < 20 || element->pos.y > 226) setOffsetY(getOffsetY() + y);
 }
 
+void change(MapElement * element, SDL_Rect sprite) {
+    element->texture->sprite.x = flippedX(element->texture, sprite.x);
+    element->texture->sprite.y = sprite.y;
+    element->texture->sprite.w = sprite.w;
+    element->texture->sprite.h = sprite.h;
+}
+
 //Permet de mettre de la musique
 void loadMusic() {
     if(Mix_Init(MIX_INIT_MP3) != 0) {
@@ -108,7 +115,7 @@ int main(int argc, char * argv[]) {
     sonic = map_add(SONIC, getPos(43, 257, 32, 40), 25, 140, 10, 1);
     MAX_WIDTH = load_stage();
 
-    int isSneaking = 0, collided = 0;
+    int isSneaking = 0, collided = 0, isJumping = 0;
     int active = 1;
     SDL_Event event;
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -120,6 +127,8 @@ int main(int argc, char * argv[]) {
                 active = 0;
                 break;
             case SDL_KEYDOWN: {
+                int dx = 0;
+                int dy = 0;
                 switch (event.key.keysym.sym) {
                     case SDLK_F11:
                         if (windowFlags == (SDL_HWSURFACE | SDL_DOUBLEBUF)) {
@@ -130,6 +139,7 @@ int main(int argc, char * argv[]) {
                     case SDLK_ESCAPE:
                         active = 0;
                         break;
+                    case SDLK_SPACE:
                     case SDLK_UP:
                     case SDLK_w:
                     case SDLK_DOWN:
@@ -139,20 +149,20 @@ int main(int argc, char * argv[]) {
                     case SDLK_RIGHT:
                     case SDLK_d: {
                         switch (event.key.keysym.sym) {
+                            case SDLK_SPACE:
+                                if (isSneaking || collided) break;
+                                change(sonic, getPos(43, 624, 32, 32));
+                                isJumping = 1;
+                                dy -= 10;
                             case SDLK_UP:
                             case SDLK_w:
-                                if (isSneaking || collided) break;
-                                sonic->texture->sprite.x = flippedX(sonic->texture, 425);
-                                sonic->texture->sprite.y = 257;
-                                move(sonic, 0, -10);
+                                if (isSneaking || collided || isJumping) break;
+                                change(sonic, getPos(425, 257, 32, 40));
                                 break;
                             case SDLK_DOWN:
                             case SDLK_s:
-                                move(sonic, 0, 10);
-                                if (isSneaking || collided) break;
-                                sonic->texture->sprite.x = flippedX(sonic->texture, 507);
-                                sonic->texture->sprite.y = 265;
-                                sonic->texture->sprite.h = 32;
+                                if (isSneaking || collided || isJumping) break;
+                                change(sonic, getPos(507, 265, 32, 32));
                                 move(sonic, 0, 8);
                                 isSneaking = 1;
                                 break;
@@ -160,25 +170,53 @@ int main(int argc, char * argv[]) {
                             case SDLK_a:
                                 if (sonic->pos.x <= 0) break;
                                 if (!sonic->texture->flipped) flipSprite(sonic->texture);
-                                move(sonic, -10, 0);
+                                dx -= 10;
                                 break;
                             case SDLK_RIGHT:
                             case SDLK_d:
                                 if (sonic->texture->flipped) flipSprite(sonic->texture);
-                                move(sonic, 10, 0);
+                                dx += 10;
                                 break;
                         }
                     }
                 }
+
+                move(sonic, dx, dy);
+
+
                 MapElement * collision = element_colliding(sonic);
-                if (collision && !collided) {
-                    collided = 1;
-                    sonic->texture->sprite.w = 40;
-                    sonic->texture->sprite.x = flippedX(sonic->texture, 39);
-                    sonic->texture->sprite.y = 807;
-                    sonic->texture->sprite.h = 32;
-                    if (!isSneaking) move(sonic, 0, 8);
+                if (!collision) {
+                    //falling ? y+10 -> timer
                 }
+
+                if (collision) {
+                    if (!collision->texture->image) { // colliding and is collision
+                        int bottomY = sonic->pos.y + sonic->texture->sprite.h;
+
+                        if (bottomY >= collision->pos.y) {
+                            int height = bottomY - collision->pos.y;
+                            printf("\nheight %d = %d - %d", height, bottomY, collision->pos.y);
+                            if (height > 20) {
+                                move(sonic, -dx, -dy);
+                                break;
+                            }
+                            dy -= height;
+                            move(sonic, 0, dy);
+                        }
+                        break;
+                    }
+/*
+                    if (!collided) { // colliding and isn't collision (enemy/object)
+                        collided = 1;
+                        sonic->texture->sprite.w = 40;
+                        sonic->texture->sprite.x = flippedX(sonic->texture, 39);
+                        sonic->texture->sprite.y = 807;
+                        sonic->texture->sprite.h = 32;
+                        if (!isSneaking) move(sonic, 0, 8);
+                    }
+                */
+                }
+                /*
                 if (!collision && collided) {
                     collided = 0;
                     sonic->texture->sprite.w = 32;
@@ -186,7 +224,7 @@ int main(int argc, char * argv[]) {
                     sonic->texture->sprite.y = 257;
                     sonic->texture->sprite.h = 40;
                     move(sonic, 0, -8);
-                }
+                }*/
                 break;
             }
             case SDL_KEYUP:
@@ -200,13 +238,13 @@ int main(int argc, char * argv[]) {
                             case SDLK_DOWN:
                             case SDLK_s:
                                 isSneaking = 0;
-                                if (collided) break;
+                                if (collided || isJumping) break;
                                 sonic->texture->sprite.w = 32;
                                 sonic->texture->sprite.h = 40;
                                 move(sonic, 0, -8);
                                 break;
                         }
-                        if (collided) break;
+                        if (collided || isJumping) break;
                         sonic->texture->sprite.x = flippedX(sonic->texture, 43);
                         sonic->texture->sprite.y = 257;
                     }
