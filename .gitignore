@@ -1,0 +1,4 @@
+stdout.txt
+sterr.txt
+*.exe
+*.o
