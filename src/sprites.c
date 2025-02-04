@@ -16,19 +16,36 @@ extern SDL_Rect sonic_jump_roll[];
 extern SDL_Rect sonic_special_positions[];
 
 SDL_Rect sonic_normal_movement[] = {
-    {43, 257, 32, 40}, {85, 257, 32, 40}, {127, 257, 32, 40}, {169, 257, 32, 40}
+    {46, 349, 23, 39},  
+    {46, 349, 23, 39},  
+    {46, 349, 23, 39},  
+    {46, 349, 23, 39},  
 };
 
+// Déplacement rapide (Full Speed)
 SDL_Rect sonic_fast_movement[] = {
-    {211, 257, 32, 40}, {253, 257, 32, 40}, {295, 257, 32, 40}, {337, 257, 32, 40}
+    {46, 349, 23, 39},  
+    {108, 346, 40, 40},
+    {177, 347, 32, 40},
+    {248, 348, 40, 40},  
+    {318, 346, 40, 40},  
+    {389, 347, 40, 40}  
 };
 
+// Saut et roulade (Jump Roll)
 SDL_Rect sonic_jump_roll[] = {
-    {379, 257, 32, 40}, {421, 257, 32, 40}, {463, 257, 32, 40}, {505, 257, 32, 40}
+    {46, 349, 23, 39},  
+    {46, 349, 23, 39},  
+    {46, 349, 23, 39},  
+    {46, 349, 23, 39},  
 };
 
+// Positions spéciales (Special Positions)
 SDL_Rect sonic_special_positions[] = {
-    {547, 257, 32, 40}, {589, 257, 32, 40}, {631, 257, 32, 40}, {673, 257, 32, 40}
+    {46, 349, 23, 39},  
+    {46, 349, 23, 39},  
+    {46, 349, 23, 39},  
+    {46, 349, 23, 39},  
 };
 
 void loadImage(ImageEnum img, char path[], Uint32 backgroundColor) {
@@ -41,8 +58,8 @@ void loadImage(ImageEnum img, char path[], Uint32 backgroundColor) {
         fprintf(stderr, "Error in IMG_Load(\"%s\") : %s\n", newPath, SDL_GetError());
     }
     if (backgroundColor != -1) {
-        image = SDL_DisplayFormat(image);
-        SDL_SetColorKey(image, SDL_SRCCOLORKEY, backgroundColor);
+    image = SDL_DisplayFormat(image);
+    SDL_SetColorKey(image, SDL_SRCCOLORKEY | SDL_RLEACCEL, backgroundColor); // Ajout de SDL_RLEACCEL pour optimiser la transparence
     }
     free(newPath);
     images[img] = image;

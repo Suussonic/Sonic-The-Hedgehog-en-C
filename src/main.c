@@ -195,14 +195,14 @@ int main(int argc, char * argv[]) {
                                 if (sonic->pos.x <= 0) break;
                                 if (!sonic->texture->flipped) flipSprite(sonic->texture);
                                 frame = getSonicFrame(10);
-                                sonic->texture->sprite = getSonicSprite("normal", frame);
+                                sonic->texture->sprite = getSonicSprite("fast", frame); // Utilise l'animation de déplacement rapide
                                 move(sonic, -10, 0);
                                 break;
                             case SDLK_RIGHT:
                             case SDLK_d:
                                 if (sonic->texture->flipped) flipSprite(sonic->texture);
                                 frame = getSonicFrame(10);
-                                sonic->texture->sprite = getSonicSprite("fast", frame);
+                                sonic->texture->sprite = getSonicSprite("fast", frame); // Idem pour la droite
                                 move(sonic, 10, 0);
                                 break;
                         }
