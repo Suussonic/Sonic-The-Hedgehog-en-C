@@ -29,7 +29,14 @@ void safeQuit() {
 
 int getSonicFrame(int speed) {
     static int frame = 0;
-    frame = (frame + 1) % 4; // Cycle entre 0 et 3
+    static Uint32 lastUpdate = 0;
+    Uint32 now = SDL_GetTicks();
+
+    if (now - lastUpdate > 100) { // Change toutes les 100 ms (ajuste selon le besoin)
+        frame = (frame + 1) % 4; // Cycle entre 0 et 3
+        lastUpdate = now;
+    }
+
     return frame;
 }
 
