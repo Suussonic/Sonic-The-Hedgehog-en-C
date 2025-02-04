@@ -2,6 +2,7 @@
 
 #include <maputils.h>
 #include <SDL_mixer.h>
+#include "sprites.h"
 
 SDL_Surface * screen;
 
@@ -26,6 +27,11 @@ void safeQuit() {
     exit(EXIT_FAILURE);
 }
 
+int getSonicFrame(int speed) {
+    static int frame = 0;
+    frame = (frame + 1) % 4; // Cycle entre 0 et 3
+    return frame;
+}
 
 int flippedX(SpriteTexture * sprite, int x) {
     return sprite->flipped ? sprite->image->w - x - sprite->sprite.w : x;
@@ -140,6 +146,8 @@ int main(int argc, char * argv[]) {
     int active = 1;
     SDL_Event event;
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+    int frame;
+    SDL_Rect newSprite;
     while (active) {
         SDL_WaitEvent(&event);
         switch (event.type) {
@@ -171,6 +179,7 @@ int main(int argc, char * argv[]) {
                                 if (isSneaking || collided) break;
                                 sonic->texture->sprite.x = flippedX(sonic->texture, 425);
                                 sonic->texture->sprite.y = 257;
+                                sonic->texture->sprite = getSonicSprite("normal", 0);
                                 break;
                             case SDLK_DOWN:
                             case SDLK_s:
@@ -185,11 +194,15 @@ int main(int argc, char * argv[]) {
                             case SDLK_a:
                                 if (sonic->pos.x <= 0) break;
                                 if (!sonic->texture->flipped) flipSprite(sonic->texture);
+                                frame = getSonicFrame(10);
+                                sonic->texture->sprite = getSonicSprite("normal", frame);
                                 move(sonic, -10, 0);
                                 break;
                             case SDLK_RIGHT:
                             case SDLK_d:
                                 if (sonic->texture->flipped) flipSprite(sonic->texture);
+                                frame = getSonicFrame(10);
+                                sonic->texture->sprite = getSonicSprite("fast", frame);
                                 move(sonic, 10, 0);
                                 break;
                         }
@@ -218,9 +231,13 @@ int main(int argc, char * argv[]) {
                 switch (event.key.keysym.sym) {
                     case SDLK_UP:
                     case SDLK_w:
+                    frame = getSonicFrame(10);
+                    sonic->texture->sprite = getSonicSprite("jump", frame);
                         if (isSneaking) break;
                     case SDLK_DOWN:
                     case SDLK_s: {
+                    frame = getSonicFrame(10);
+                    sonic->texture->sprite = getSonicSprite("special", frame);
                         switch (event.key.keysym.sym) {
                             case SDLK_DOWN:
                             case SDLK_s:
