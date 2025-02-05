@@ -32,5 +32,4 @@ int showTitleScreen(int width, int height, SDL_Surface * screen, TTF_Font * font
                 break;
         }
     }
-    return 0;
 }

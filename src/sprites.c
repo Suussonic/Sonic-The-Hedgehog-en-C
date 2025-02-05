@@ -26,11 +26,12 @@ SDL_Rect sprites_running[6] = {
         {318, 346, 40, 40},
         {389, 347, 40, 40}
 };
-SDL_Rect sprites_jumping[4] = {
-        {46, 349, 23, 39},
-        {46, 349, 23, 39},
-        {46, 349, 23, 39},
-        {46, 349, 23, 39},
+SDL_Rect sprites_jumping[5] = {
+        {44, 625, 32, 32},
+        {113, 625, 32, 32},
+        {183, 625, 32, 32},
+        {253, 625, 32, 32},
+        {323, 625, 32, 32}
 };
 SDL_Rect sprites_special[4] = {
         {46, 349, 23, 39},
@@ -53,7 +54,7 @@ Animation sonic_running = {
 
 Animation sonic_jumping = {
         .name = "jump",
-        .max = 4,
+        .max = 5,
         .sprites = sprites_jumping
 };
 

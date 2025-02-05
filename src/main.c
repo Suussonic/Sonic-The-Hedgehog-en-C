@@ -115,6 +115,7 @@ void loadFont(char * path) {
 int rings = 0;
 int isSneaking = 0, collided = 0, isJumping = 0, isFalling = 0;
 int jumpHeight = 0, kickYeet = 0;
+int frame;
 
 SDL_Rect ringRect = {.x = 24, .y = 198, .w = 16, .h = 16};
 SDL_Rect ringPos = {.x = WINDOW_WIDTH-40, .y = 5};
@@ -191,6 +192,9 @@ Uint32 damage(Uint32 interval, void * param) {
 
 Uint32 jump(Uint32 interval, void * param) {
     MapElement * collision = element_colliding(sonic);
+
+    frame = getSonicFrame(5);
+    change(sonic, getSonicSprite("jump", frame));
 
     if (jumpHeight <= 0 || collision) {
         isFalling = 1;
@@ -275,7 +279,6 @@ void loop(Uint32 windowFlags) {
     int active = 1;
     SDL_Event event;
     SDL_EnableKeyRepeat(30, SDL_DEFAULT_REPEAT_INTERVAL);
-    int frame;
     while (active) {
         SDL_WaitEvent(&event);
         SDL_FillRect(screen, NULL, color(0, 0, 0));
@@ -331,6 +334,7 @@ void loop(Uint32 windowFlags) {
                                 if (sonic->pos.x <= 0 || collided) break;
                                 if (!sonic->texture->flipped) flipSprite(sonic->texture);
                                 dx -= 10;
+                                if (isJumping || isFalling) break;
                                 frame = getSonicFrame(6);
                                 change(sonic, getSonicSprite("walk", frame));
                                 break;
@@ -339,6 +343,7 @@ void loop(Uint32 windowFlags) {
                                 if (collided) break;
                                 if (sonic->texture->flipped) flipSprite(sonic->texture);
                                 dx += 10;
+                                if (isJumping || isFalling) break;
                                 frame = getSonicFrame(6);
                                 change(sonic, getSonicSprite("walk", frame));
                                 break;
