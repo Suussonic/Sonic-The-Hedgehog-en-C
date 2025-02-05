@@ -126,7 +126,6 @@ Uint32 fall(Uint32 interval, void * param) {
 }
 
 Uint32 damage(Uint32 interval, void * param) {
-    printf("\nDamage");
     if (kickYeet <= 0) {
         collided = 0;
         SDL_SetTimer(0, NULL);

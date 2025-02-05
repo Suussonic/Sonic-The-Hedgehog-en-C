@@ -25,7 +25,6 @@ void map_free() {
 
 void element_show(MapElement * element) {
     SDL_Surface * image = element->texture->image;
-    // debug
     if (image == NULL) return;
 
     SDL_Rect pos = element->pos;
