@@ -116,6 +116,8 @@ void loadFont(char * path) {
 int rings = 0;
 int isSneaking = 0, collided = 0, isJumping = 0, isFalling = 0;
 int jumpHeight = 0, kickYeet = 0;
+int cameraLocked = 1; 
+int initialY;
 int frame;
 
 SDL_Rect ringRect = {.x = 24, .y = 198, .w = 16, .h = 16};
@@ -149,7 +151,6 @@ Uint32 fall(Uint32 interval, void * param) {
     if (collision) {
         if (collision->texture->image != NULL) {
             map_remove(collision);
-
             if (collision->texture->image == getImage(OBJECTS)) {
                 setRings(rings+1);
             }
@@ -157,19 +158,32 @@ Uint32 fall(Uint32 interval, void * param) {
         }
 
         sonic->pos.y = collision->pos.y - sonic->texture->sprite.h;
+        setOffsetY(sonic->pos.y - WINDOW_HEIGHT / 2);
         isFalling = 0;
         stand();
+
+        // 🔹 Rebloquer la caméra si Sonic est revenu à sa position initiale
+        if (sonic->pos.y >= initialY) {
+            cameraLocked = 1;
+        }
+
         return 0;
     }
 
     move(sonic, 0, 10);
 
-    if (sonic->pos.y > 500) {
+    // 🔹 Si la caméra est débloquée, elle suit Sonic vers le bas
+    if (!cameraLocked) {
+        setOffsetY(getOffsetY() + 10);
+    }
+
+    if (sonic->pos.y > 500) { // Si Sonic tombe hors de l'écran
         printf("\nrip");
         sonic->pos.x = 25;
         sonic->pos.y = 140;
         setOffsetX(0);
         setOffsetY(0);
+        cameraLocked = 1; // 🔹 Réinitialisation de la caméra
     }
 
     screen_show();
@@ -207,6 +221,13 @@ Uint32 jump(Uint32 interval, void * param) {
     }
 
     jumpHeight -= 10;
+    if (sonic->pos.y <= initialY - 2 * sonic->texture->sprite.h) {
+        cameraLocked = 0;
+    }
+
+    if (!cameraLocked) {
+        setOffsetY(getOffsetY() - 10); // La caméra monte avec Sonic
+    }
     move(sonic, 0, -10);
 
     screen_show();
@@ -221,8 +242,7 @@ void app_sleep(int ms) {
     usleep(ms);
     #endif
 }
-
-void loop(Uint32 windowFlags);
+void loop(Uint32 windowFlags); // Déclaration de la fonction loop
 
 int main(int argc, char * argv[]) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -310,7 +330,12 @@ void loop(Uint32 windowFlags) {
                                 dy -= 10;
                                 sonic->texture->sprite = getSonicSprite("jump", 0);
                                 jumpHeight = 50;
+
+                                // 🔹 Stocke la position Y initiale avant le saut
+                                initialY = sonic->pos.y;
+
                                 SDL_AddTimer(30, jump, NULL);
+                                break;
                             case SDLK_UP:
                             case SDLK_w:
                                 if (isSneaking || collided || isJumping) break;
