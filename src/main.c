@@ -262,9 +262,7 @@ int main(int argc, char * argv[]) {
     setRings(0);
     sonic = map_add(SONIC, sonic_standing, 25, 140, 10, 1);
     MAX_WIDTH = load_stage();
-
-    SDL_AddTimer(60, fall, NULL);
-    app_sleep(1000);
+    move(sonic, 4000, 0);
 
     do {
         loop(windowFlags);

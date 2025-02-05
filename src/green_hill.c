@@ -16,6 +16,10 @@ void map_add_slope(int x0, int y0, int x1, int y1, int z, int size) {
 int load_stage() {
     map_add(GREEN_HILL_BACKGROUND, getPos(24, 245, 3584, 112), 0, 0, -2, 0);
     map_add(GREEN_HILL_BACKGROUND, getPos(24, 365, 3584, 144), 0, 112, -2, 0);
+    map_add(GREEN_HILL_BACKGROUND, getPos(24, 245, 3584, 112), 3584, 0, -2, 0);
+    map_add(GREEN_HILL_BACKGROUND, getPos(24, 365, 3584, 144), 3584, 112, -2, 0);
+    map_add(GREEN_HILL_BACKGROUND, getPos(24, 245, 3584, 112), 7168, 0, -2, 0);
+    map_add(GREEN_HILL_BACKGROUND, getPos(24, 365, 3584, 144), 7168, 112, -2, 0);
     map_add(GREEN_HILL_FOREGROUND, getPos(24, 264, 10240, 1280), 0, -765, -1, 0);
 
     map_add(BADNIKS, getPos(173, 275, 48, 32), 200, 160, 0, 1);
@@ -39,6 +43,23 @@ int load_stage() {
     map_add_collision(getPos(2174, 100, 64, 34), 0);
     map_add_collision(getPos(2238, 66, 130, 36), 0);
     map_add_collision(getPos(2368, 16, 256, 50), 0);
+
+
+    map_add_collision(getPos(2818, 16, 256, 20), 0);
+    map_add_collision(getPos(3074, -60, 300, 76), 0);
+    map_add_slope(3400, -55, 3560, -130, 0, 20);
+    map_add_collision(getPos(3560, -130, 80, 20), 0);
+
+    map_add_collision(getPos(3330, 130, 328, 20), 0);
+    map_add_slope(3658, 130, 3800, 200, 0, 20);
+    map_add_collision(getPos(3800, 200, 328, 20), 0);
+    map_add_slope(4128, 200, 4270, 130, 0, 20);
+    map_add_collision(getPos(4270, 130, 434, 20), 0);
+
+    map_add_collision(getPos(4700, 95, 68, 35), 0);
+    map_add_collision(getPos(4766, 62, 162, 34), 0);
+    map_add_collision(getPos(4928, 28, 322, 48), 0);
+    map_add_collision(getPos(5250, 68, 192, 20), 0);
 
 
     map_add(OBJECTS, getPos(24, 485, 32, 32), 150, 160, 0, 1);
