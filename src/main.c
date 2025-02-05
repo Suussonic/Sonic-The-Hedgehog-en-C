@@ -92,6 +92,50 @@ void loadMusic() {
     }
 }
 
+int isSneaking = 0, collided = 0, isJumping = 0, isFalling = 0;
+int jumpHeight = 0;
+
+Uint32 fall(Uint32 interval, void * param) {
+    MapElement * collision = element_colliding(sonic);
+
+    if (collision) {
+        sonic->pos.y = collision->pos.y - sonic->texture->sprite.h;
+        isFalling = 0;
+        map_show();
+        SDL_Flip(screen);
+        return 0;
+    }
+
+    move(sonic, 0, 10);
+
+    if (sonic->pos.y > 500) {
+        printf("\nrip");
+        return 0;
+    }
+
+    map_show();
+    SDL_Flip(screen);
+    return interval;
+
+}
+Uint32 jump(Uint32 interval, void * param) {
+    MapElement * collision = element_colliding(sonic);
+
+    if (jumpHeight <= 0 || collision) {
+        jumpHeight = 0;
+        SDL_SetTimer(0, NULL);
+        SDL_AddTimer(40, fall, NULL);
+        return 0;
+    }
+
+    jumpHeight -= 10;
+    move(sonic, 0, -10);
+
+    map_show();
+    SDL_Flip(screen);
+    return interval;
+}
+
 int main(int argc, char * argv[]) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         fprintf(stderr,"Error in SDL_Init : %s\n", SDL_GetError());
@@ -125,9 +169,10 @@ int main(int argc, char * argv[]) {
     //SDL_Rect titleScreenBgPos = getPos(0, 0, -1, -1);
 
     sonic = map_add(SONIC, sonic_standing, 25, 140, 10, 1);
+    SDL_AddTimer(60, fall, NULL);
+
     MAX_WIDTH = load_stage();
 
-    int isSneaking = 0, collided = 0, isJumping = 0, isFalling = 0;
     int active = 1;
     SDL_Event event;
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -164,11 +209,13 @@ int main(int argc, char * argv[]) {
                     case SDLK_d: {
                         switch (event.key.keysym.sym) {
                             case SDLK_SPACE:
-                                if (isSneaking || collided) break;
+                                if (isSneaking || collided || isJumping || isFalling) break;
                                 change(sonic, getPos(43, 624, 32, 32));
                                 isJumping = 1;
                                 dy -= 10;
                                 sonic->texture->sprite = getSonicSprite("jump", 0);
+                                jumpHeight = 50;
+                                SDL_AddTimer(30, jump, NULL);
                             case SDLK_UP:
                             case SDLK_w:
                                 if (isSneaking || collided || isJumping) break;
@@ -204,23 +251,22 @@ int main(int argc, char * argv[]) {
 
 
                 MapElement * collision = element_colliding(sonic);
-                if (!collision) {
-                    //falling ? y+10 -> timer
-                }
-
                 if (collision) {
                     if (!collision->texture->image) { // colliding and is collision
                         int bottomY = sonic->pos.y + sonic->texture->sprite.h;
 
                         if (bottomY >= collision->pos.y) {
                             int height = bottomY - collision->pos.y;
-                            printf("\nheight %d = %d - %d", height, bottomY, collision->pos.y);
                             if (height > 20) {
                                 move(sonic, -dx, -dy);
                                 break;
                             }
                             dy -= height;
                             move(sonic, 0, dy);
+                            if (isFalling) {
+                                isFalling = 0;
+                                change(sonic, sonic_standing);
+                            }
                         }
                         break;
                     }
@@ -257,9 +303,7 @@ int main(int argc, char * argv[]) {
                         break;
                     case SDLK_SPACE:
                         isJumping = 0;
-                        if (isFalling) break;
-                        change(sonic, sonic_standing);
-                        break;
+                        isFalling = 1;
                     case SDLK_UP:
                     case SDLK_w:
                         if (isSneaking) break;
