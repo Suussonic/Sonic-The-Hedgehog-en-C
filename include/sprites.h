@@ -29,5 +29,7 @@ SDL_Surface * getImage(ImageEnum image);
 
 Uint32 color(int r, int g, int b);
 SDL_Surface * zoomSurf(SpriteTexture * sprite, int zoomx, int zoomy, int smooth);
+SDL_Rect getSonicSprite(const char *action, int frame);
+
 
 #endif
