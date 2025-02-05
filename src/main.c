@@ -122,6 +122,7 @@ Uint32 jump(Uint32 interval, void * param) {
     MapElement * collision = element_colliding(sonic);
 
     if (jumpHeight <= 0 || collision) {
+        isJumping = 0;
         jumpHeight = 0;
         SDL_SetTimer(0, NULL);
         SDL_AddTimer(40, fall, NULL);
@@ -175,7 +176,7 @@ int main(int argc, char * argv[]) {
 
     int active = 1;
     SDL_Event event;
-    SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+    SDL_EnableKeyRepeat(30, SDL_DEFAULT_REPEAT_INTERVAL);
     int frame;
     SDL_Rect newSprite;
     while (active) {
