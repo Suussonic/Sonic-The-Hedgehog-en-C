@@ -12,10 +12,13 @@ LSDL= -lmingw32 -lSDLmain -lSDL -lSDL_image -lSDL_ttf -lSDL_gfx -lSDL_mixer
 INCLUDES= $(INCL) $(ISDL)
 
 all : main.o
-	gcc -o Sonic main.o green_hill.o maputils.o sprites.o $(INCL) $(LSDL)
+	gcc -o Sonic main.o title.o green_hill.o maputils.o sprites.o $(INCL) $(LSDL)
 
-main.o : $(SRC)main.c green_hill.o
+main.o : $(SRC)main.c green_hill.o title.o
 	gcc -c $(SRC)main.c $(INCLUDES)
+
+title.o : $(SRC)title.c
+	gcc -c $(SRC)title.c $(INCLUDES)
 
 green_hill.o : $(SRC)green_hill.c maputils.o
 	gcc -c $(SRC)green_hill.c $(INCLUDES)

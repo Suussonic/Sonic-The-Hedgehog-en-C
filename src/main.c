@@ -4,6 +4,7 @@
 #include <green_hill.h>
 #include <SDL_mixer.h>
 #include <SDL_ttf.h>
+#include <title.h>
 
 SDL_Surface * screen;
 
@@ -219,6 +220,11 @@ int main(int argc, char * argv[]) {
 
     TTF_Init();
     loadFont("assets/arial.ttf");
+
+    if (!showTitleScreen(WINDOW_WIDTH, WINDOW_HEIGHT, screen, font)) {
+        safeQuit();
+    }
+
     setRings(0);
 
     bgMusic = Mix_LoadMUS("assets/sounds/green_hill_zone.mp3");
