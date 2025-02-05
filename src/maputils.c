@@ -26,10 +26,10 @@ void map_free() {
 void element_show(MapElement * element) {
     SDL_Surface * image = element->texture->image;
     // debug
-    if (image == NULL) image = getImage(BADNIKS);//return;
+    if (image == NULL) return;
 
     SDL_Rect pos = element->pos;
-    if (image == NULL || image != getImage(GREEN_HILL_BACKGROUND)) {
+    if (image != getImage(GREEN_HILL_BACKGROUND)) {
         pos.x -= dx;
         pos.y -= dy;
     }
