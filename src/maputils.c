@@ -29,7 +29,8 @@ void element_show(MapElement * element) {
 
     SDL_Rect pos = element->pos;
     pos.x -= dx;
-    pos.y -= dy;
+    if (image != getImage(GREEN_HILL_BACKGROUND))
+        pos.y -= dy;
 
     SDL_BlitSurface(image, &element->texture->sprite, mapScreen, &pos);
 }
