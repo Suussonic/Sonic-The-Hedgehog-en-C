@@ -14,6 +14,11 @@ void map_init(SDL_Surface * screen) {
 
 void map_free() {
     if (map == NULL) return;
+    for (int i = 0; i < mapSize; ++i) {
+        MapElement  * element = map[i];
+        free(element->texture);
+        free(element);
+    }
     free(map);
     map = NULL;
 }

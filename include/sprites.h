@@ -21,6 +21,12 @@ typedef struct SpriteTexture {
     int flipped;
 } SpriteTexture;
 
+// Déclaration des tableaux de positions des sprites de Sonic
+extern SDL_Rect sonic_normal_movement[];
+extern SDL_Rect sonic_fast_movement[];
+extern SDL_Rect sonic_jump_roll[];
+extern SDL_Rect sonic_special_positions[];
+
 void loadImages(SDL_Surface * screen);
 void loadImage(ImageEnum img, char path[], Uint32 backgroundColor);
 

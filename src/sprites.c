@@ -1,19 +1,11 @@
 #include <sprites.h>
 #include <SDL_image.h>
 #include <SDL_rotozoom.h>
-#include <stdlib.h>
-#include <string.h>
 
 SDL_Surface * images[17];
 int backgroundColors[17];
 
 SDL_Surface * spritesScreen = NULL;
-
-// Déclaration des tableaux de positions des sprites de Sonic
-extern SDL_Rect sonic_normal_movement[];
-extern SDL_Rect sonic_fast_movement[];
-extern SDL_Rect sonic_jump_roll[];
-extern SDL_Rect sonic_special_positions[];
 
 SDL_Rect sonic_normal_movement[] = {
     {46, 349, 23, 39},
