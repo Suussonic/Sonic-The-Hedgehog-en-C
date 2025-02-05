@@ -73,6 +73,21 @@ int load_stage() {
     map_add_collision(getPos(4828, -120, 120, 20), 0);
     map_add_slope(4948, -110, 5070, -58, 0, 20);
     map_add_collision(getPos(5070, -58, 590, 20), 0);
+    map_add_slope(5660, -58, 5820, -125, 0, 20);
+    map_add_collision(getPos(5820, -125, 370, 20), 0);
+
+    map_add_collision(getPos(6300, 130, 420, 20), 0);
+
+    map_add_collision(getPos(6830, 390, 150, 20), 0);
+    map_add_slope(6960, 390, 7137, 460, 0, 20);
+    map_add_collision(getPos(7137, 450, 80, 20), 0);
+    map_add_slope(7220, 450, 7280, 400, 0, 20);
+    map_add_collision(getPos(7300, 390, 380, 20), 0);
+    map_add_collision(getPos(7680, 450, 870, 20), 0);
+    map_add_collision(getPos(8540, 420, 100, 30), 0);
+    map_add_collision(getPos(8640, 390, 390, 30), 0);
+    map_add_slope(9030, 390, 9180, 460, 0, 20);
+    map_add_collision(getPos(9180, 460, 1062, 20), 0);
 
 
     map_add(OBJECTS, getPos(24, 485, 32, 32), 150, 160, 0, 1);
