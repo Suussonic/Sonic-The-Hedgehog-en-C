@@ -21,12 +21,14 @@ typedef struct SpriteTexture {
     int flipped;
 } SpriteTexture;
 
+typedef struct Animation {
+    char * name;
+    int max;
+    SDL_Rect * sprites;
+} Animation;
+
 // Déclaration des tableaux de positions des sprites de Sonic
 extern SDL_Rect sonic_standing;
-extern SDL_Rect sonic_walking[];
-extern SDL_Rect sonic_running[];
-extern SDL_Rect sonic_jumping[];
-extern SDL_Rect sonic_special_positions[];
 
 void loadImages(SDL_Surface * screen);
 void loadImage(ImageEnum img, char path[], Uint32 backgroundColor);

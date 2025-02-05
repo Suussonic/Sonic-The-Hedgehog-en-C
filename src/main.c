@@ -187,7 +187,7 @@ int main(int argc, char * argv[]) {
                                 if (!sonic->texture->flipped) flipSprite(sonic->texture);
                                 dx -= 10;
                                 frame = getSonicFrame(6);
-                                sonic->texture->sprite = getSonicSprite("normal", frame);
+                                sonic->texture->sprite = getSonicSprite("walk", frame);
                                 sonic->texture->sprite.x = flippedX(sonic->texture, sonic->texture->sprite.x);
                                 break;
                             case SDLK_RIGHT:
@@ -195,7 +195,7 @@ int main(int argc, char * argv[]) {
                                 if (sonic->texture->flipped) flipSprite(sonic->texture);
                                 dx += 10;
                                 frame = getSonicFrame(6);
-                                sonic->texture->sprite = getSonicSprite("normal", frame);
+                                sonic->texture->sprite = getSonicSprite("walk", frame);
                                 break;
                         }
                     }

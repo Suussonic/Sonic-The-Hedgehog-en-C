@@ -4,43 +4,66 @@
 
 SDL_Surface * images[17];
 int backgroundColors[17];
+Animation animations[4];
+int animationsAmount = 4;
 
 SDL_Surface * spritesScreen = NULL;
 
 SDL_Rect sonic_standing = {43, 257, 32, 40};
-
-SDL_Rect sonic_walking[] = {
-    {46, 349, 24, 40},
-    {109, 347, 40, 40},
-    {178, 348, 32, 40},
-    {249, 349, 40, 40},
-    {319, 347, 40, 40},
-    {390, 348, 40, 40},
+SDL_Rect sprites_walking[6] = {
+        {46, 349, 24, 40},
+        {109, 347, 40, 40},
+        {178, 348, 32, 40},
+        {249, 349, 40, 40},
+        {319, 347, 40, 40},
+        {390, 348, 40, 40}
+};
+SDL_Rect sprites_running[6] = {
+        {46, 349, 23, 39},
+        {108, 346, 40, 40},
+        {177, 347, 32, 40},
+        {248, 348, 40, 40},
+        {318, 346, 40, 40},
+        {389, 347, 40, 40}
+};
+SDL_Rect sprites_jumping[4] = {
+        {46, 349, 23, 39},
+        {46, 349, 23, 39},
+        {46, 349, 23, 39},
+        {46, 349, 23, 39},
+};
+SDL_Rect sprites_special[4] = {
+        {46, 349, 23, 39},
+        {46, 349, 23, 39},
+        {46, 349, 23, 39},
+        {46, 349, 23, 39},
 };
 
-SDL_Rect sonic_running[] = {
-    {46, 349, 23, 39},
-    {108, 346, 40, 40},
-    {177, 347, 32, 40},
-    {248, 348, 40, 40},
-    {318, 346, 40, 40},
-    {389, 347, 40, 40}
+Animation sonic_walking = {
+        .name = "walk",
+        .max = 6,
+        .sprites = sprites_walking
 };
 
-SDL_Rect sonic_jumping[] = {
-    {46, 349, 23, 39},
-    {46, 349, 23, 39},
-    {46, 349, 23, 39},
-    {46, 349, 23, 39},
+Animation sonic_running = {
+        .name = "run",
+        .max = 6,
+        .sprites = sprites_running
+};
+
+Animation sonic_jumping = {
+        .name = "jump",
+        .max = 4,
+        .sprites = sprites_jumping
 };
 
 // Positions spéciales (Special Positions)
-SDL_Rect sonic_special_positions[] = {
-    {46, 349, 23, 39},
-    {46, 349, 23, 39},
-    {46, 349, 23, 39},
-    {46, 349, 23, 39},
+Animation sonic_special_positions = {
+        .name = "special",
+        .max = 4,
+        .sprites = sprites_special
 };
+// "For his neutral special, he wields a gun" :D
 
 void loadImage(ImageEnum img, char path[], Uint32 backgroundColor) {
     char * newPath = (char *) malloc(strlen(path) + 15);
@@ -92,15 +115,20 @@ void loadImages(SDL_Surface * screen) {
     //loadImage(TITLE_SCREEN, "miscellaneous/Title Screen", -1);
     loadImage(GREEN_HILL_BACKGROUND, "stage/background", -1);
     loadImage(GREEN_HILL_FOREGROUND, "stage/foreground", color(135, 16, 19));
+
+    animations[0] = sonic_walking;
+    animations[1] = sonic_running;
+    animations[2] = sonic_jumping;
+    animations[3] = sonic_special_positions;
 }
 
 // Fonction pour obtenir la position d'un sprite en fonction de l'action
-SDL_Rect getSonicSprite(const char *action, int frame) {
-    if (strcmp(action, "normal") == 0 && frame < 6) return sonic_walking[frame];
-    if (strcmp(action, "fast") == 0 && frame < 6) return sonic_running[frame];
-    if (strcmp(action, "jump") == 0 && frame < 4) return sonic_jumping[frame];
-    if (strcmp(action, "special") == 0 && frame < 4) return sonic_special_positions[frame];
-
+SDL_Rect getSonicSprite(const char * action, int frame) {
+    for (int i = 0; i < animationsAmount; ++i) {
+        Animation * animation = animations + i;
+        if (!strcmp(action, animation->name) && frame < animation->max)
+            return animation->sprites[frame];
+    }
     // Par défaut, retourner la première position normale
     return sonic_standing;
 }
