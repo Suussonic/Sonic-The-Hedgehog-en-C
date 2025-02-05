@@ -27,13 +27,13 @@ void safeQuit() {
     exit(EXIT_FAILURE);
 }
 
-int getSonicFrame(int speed) {
+int getSonicFrame(int max) {
     static int frame = 0;
     static Uint32 lastUpdate = 0;
     Uint32 now = SDL_GetTicks();
 
     if (now - lastUpdate > 100) { // Change toutes les 100 ms (ajuste selon le besoin)
-        frame = (frame + 1) % 4; // Cycle entre 0 et 3
+        frame = (frame + 1) % max; // Cycle entre 0 et max-0
         lastUpdate = now;
     }
 
@@ -124,7 +124,7 @@ int main(int argc, char * argv[]) {
     //SDL_Rect titleScreenBgSprite = getPos(24, 213, 1024, 112);
     //SDL_Rect titleScreenBgPos = getPos(0, 0, -1, -1);
 
-    sonic = map_add(SONIC, getPos(43, 257, 32, 40), 25, 140, 10, 1);
+    sonic = map_add(SONIC, sonic_standing, 25, 140, 10, 1);
     MAX_WIDTH = load_stage();
 
     int isSneaking = 0, collided = 0, isJumping = 0;
@@ -168,7 +168,7 @@ int main(int argc, char * argv[]) {
                                 change(sonic, getPos(43, 624, 32, 32));
                                 isJumping = 1;
                                 dy -= 10;
-                                sonic->texture->sprite = getSonicSprite("normal", 0);
+                                sonic->texture->sprite = getSonicSprite("jump", 0);
                             case SDLK_UP:
                             case SDLK_w:
                                 if (isSneaking || collided || isJumping) break;
@@ -186,15 +186,16 @@ int main(int argc, char * argv[]) {
                                 if (sonic->pos.x <= 0) break;
                                 if (!sonic->texture->flipped) flipSprite(sonic->texture);
                                 dx -= 10;
-                                frame = getSonicFrame(10);
-                                sonic->texture->sprite = getSonicSprite("fast", frame); // Utilise l'animation de déplacement rapide
+                                frame = getSonicFrame(6);
+                                sonic->texture->sprite = getSonicSprite("normal", frame);
+                                sonic->texture->sprite.x = flippedX(sonic->texture, sonic->texture->sprite.x);
                                 break;
                             case SDLK_RIGHT:
                             case SDLK_d:
                                 if (sonic->texture->flipped) flipSprite(sonic->texture);
                                 dx += 10;
-                                frame = getSonicFrame(10);
-                                sonic->texture->sprite = getSonicSprite("fast", frame); // Idem pour la droite
+                                frame = getSonicFrame(6);
+                                sonic->texture->sprite = getSonicSprite("normal", frame);
                                 break;
                         }
                     }
@@ -250,15 +251,15 @@ int main(int argc, char * argv[]) {
                 switch (event.key.keysym.sym) {
                     case SDLK_SPACE:
                         if (!isJumping) break;
-                        frame = getSonicFrame(10);
-                        sonic->texture->sprite = getSonicSprite("jump", frame);
+                        frame = getSonicFrame(1);
+                        sonic->texture->sprite = getSonicSprite("normal", frame);
                         break;
                     case SDLK_UP:
                     case SDLK_w:
                         if (isSneaking) break;
                     case SDLK_DOWN:
                     case SDLK_s: {
-                    frame = getSonicFrame(10);
+                    frame = getSonicFrame(1);
                     sonic->texture->sprite = getSonicSprite("special", frame);
                         switch (event.key.keysym.sym) {
                             case SDLK_DOWN:

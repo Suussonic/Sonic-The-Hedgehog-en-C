@@ -7,15 +7,18 @@ int backgroundColors[17];
 
 SDL_Surface * spritesScreen = NULL;
 
-SDL_Rect sonic_normal_movement[] = {
-    {46, 349, 23, 39},
-    {46, 349, 23, 39},
-    {46, 349, 23, 39},
-    {46, 349, 23, 39},
+SDL_Rect sonic_standing = {43, 257, 32, 40};
+
+SDL_Rect sonic_walking[] = {
+    {46, 349, 24, 40},
+    {109, 347, 40, 40},
+    {178, 348, 32, 40},
+    {249, 349, 40, 40},
+    {319, 347, 40, 40},
+    {390, 348, 40, 40},
 };
 
-// Déplacement rapide (Full Speed)
-SDL_Rect sonic_fast_movement[] = {
+SDL_Rect sonic_running[] = {
     {46, 349, 23, 39},
     {108, 346, 40, 40},
     {177, 347, 32, 40},
@@ -24,8 +27,7 @@ SDL_Rect sonic_fast_movement[] = {
     {389, 347, 40, 40}
 };
 
-// Saut et roulade (Jump Roll)
-SDL_Rect sonic_jump_roll[] = {
+SDL_Rect sonic_jumping[] = {
     {46, 349, 23, 39},
     {46, 349, 23, 39},
     {46, 349, 23, 39},
@@ -94,11 +96,11 @@ void loadImages(SDL_Surface * screen) {
 
 // Fonction pour obtenir la position d'un sprite en fonction de l'action
 SDL_Rect getSonicSprite(const char *action, int frame) {
-    if (strcmp(action, "normal") == 0 && frame < 4) return sonic_normal_movement[frame];
-    if (strcmp(action, "fast") == 0 && frame < 4) return sonic_fast_movement[frame];
-    if (strcmp(action, "jump") == 0 && frame < 4) return sonic_jump_roll[frame];
+    if (strcmp(action, "normal") == 0 && frame < 6) return sonic_walking[frame];
+    if (strcmp(action, "fast") == 0 && frame < 6) return sonic_running[frame];
+    if (strcmp(action, "jump") == 0 && frame < 4) return sonic_jumping[frame];
     if (strcmp(action, "special") == 0 && frame < 4) return sonic_special_positions[frame];
 
     // Par défaut, retourner la première position normale
-    return sonic_normal_movement[0];
+    return sonic_standing;
 }
