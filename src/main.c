@@ -101,6 +101,7 @@ Uint32 fall(Uint32 interval, void * param) {
     if (collision) {
         sonic->pos.y = collision->pos.y - sonic->texture->sprite.h;
         isFalling = 0;
+        change(sonic, sonic_standing);
         map_show();
         SDL_Flip(screen);
         return 0;
@@ -116,12 +117,13 @@ Uint32 fall(Uint32 interval, void * param) {
     map_show();
     SDL_Flip(screen);
     return interval;
-
 }
+
 Uint32 jump(Uint32 interval, void * param) {
     MapElement * collision = element_colliding(sonic);
 
     if (jumpHeight <= 0 || collision) {
+        isFalling = 1;
         isJumping = 0;
         jumpHeight = 0;
         SDL_SetTimer(0, NULL);
@@ -302,9 +304,6 @@ int main(int argc, char * argv[]) {
                         if (isJumping || isSneaking) break;
                         change(sonic, sonic_standing);
                         break;
-                    case SDLK_SPACE:
-                        isJumping = 0;
-                        isFalling = 1;
                     case SDLK_UP:
                     case SDLK_w:
                         if (isSneaking) break;
