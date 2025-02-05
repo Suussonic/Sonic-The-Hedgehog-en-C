@@ -16,7 +16,7 @@
 SDL_Surface * screen;
 
 const int WINDOW_WIDTH = 1000;
-const int WINDOW_HEIGHT = 256;
+const int WINDOW_HEIGHT = 1000;
 int MAX_WIDTH = 0;
 
 MapElement * sonic;

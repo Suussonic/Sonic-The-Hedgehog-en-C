@@ -1,35 +1,60 @@
 #include <title.h>
-
 #include <SDL.h>
+#include <SDL_image.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-int showTitleScreen(int width, int height, SDL_Surface * screen, TTF_Font * font) {
-    SDL_Rect playButton = {.x = width / 2 - 100, .y = height / 2 - 30, 200, 60};
+#define FRAME_COUNT 18
+#define LOOP_START 16 // Répétition des 2 dernières frames
 
-    SDL_Surface * play = TTF_RenderText_Solid(font, "Click or press Space to play!", (SDL_Color){255, 255, 255});
-    SDL_BlitSurface(play, NULL, screen, &playButton);
-    SDL_Flip(screen);
-    free(play);
+SDL_Rect title_sprites[FRAME_COUNT] = {
+    {24, 520, 318, 222}, {352, 520, 318, 222}, {680, 520, 318, 222},
+    {24, 752, 318, 222}, {352, 752, 318, 222}, {680, 752, 318, 222},
+    {24, 984, 318, 222}, {352, 984, 318, 222}, {680, 984, 318, 222},
+    {24, 1216, 318, 222}, {352, 1216, 318, 222}, {680, 1216, 318, 222},
+    {24, 1448, 318, 222}, {352, 1448, 318, 222}, {680, 1448, 318, 222},
+    {24, 1680, 318, 222}, {352, 1680, 318, 222}, {680, 1680, 318, 222}
+};
 
-    SDL_Event event;
-    while (1) {
-        SDL_WaitEvent(&event);
-        switch (event.type) {
-            case SDL_KEYDOWN:
-                switch (event.key.keysym.sym) {
-                    case SDLK_ESCAPE: return 0;
-                    case SDLK_RETURN:
-                    case SDLK_SPACE: return 1;
-                }
-                break;
-            case SDL_QUIT: return 0;
-            case SDL_MOUSEBUTTONDOWN:
-                if (event.button.x >= playButton.x && event.button.x <= playButton.x + playButton.w &&
-                    event.button.y >= playButton.y && event.button.y <= playButton.y + playButton.h) {
-                    return 1;
-                }
-                break;
-        }
+int showTitleScreen(int width, int height, SDL_Surface *screen, TTF_Font *font) {
+    SDL_Surface *titleImage = IMG_Load("assets/sprites/miscellaneous/Title Screen.png");
+    if (!titleImage) {
+        fprintf(stderr, "Erreur de chargement de l'image du titre : %s\n", IMG_GetError());
+        return 0;
     }
+    
+    SDL_SetColorKey(titleImage, SDL_TRUE, SDL_MapRGB(titleImage->format, 16, 112, 132)); // Supprime la couleur du cadre
+    
+    int spriteWidth = width * 0.75;
+    int spriteHeight = height * 0.75;
+    SDL_Rect titlePos = {width / 2 - spriteWidth / 2, height / 2 - spriteHeight / 2, spriteWidth, spriteHeight}; // Placement centré et ajustement taille
+    
+    int frame = LOOP_START; // Commence directement à la boucle finale
+    int running = 1;
+    SDL_Event event;
+    Uint32 lastUpdate = SDL_GetTicks();
+    
+    while (running) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                running = 0;
+            } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
+                running = 0;
+            }
+        }
+        
+        Uint32 now = SDL_GetTicks();
+        if (now - lastUpdate > 100) { // Change de frame toutes les 100ms
+            frame++;
+            if (frame >= FRAME_COUNT) frame = LOOP_START; // Boucle uniquement sur les 2 dernières frames
+            lastUpdate = now;
+        }
+        
+        SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
+        SDL_BlitSurface(titleImage, &title_sprites[frame], screen, &titlePos);
+        SDL_Flip(screen);
+    }
+    
+    SDL_FreeSurface(titleImage);
+    return 1;
 }
