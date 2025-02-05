@@ -70,7 +70,7 @@ void move(MapElement * element, int x, int y) {
 }
 
 void change(MapElement * element, SDL_Rect sprite) {
-    element->texture->sprite.x = flippedX(element->texture, sprite.x);
+    element->texture->sprite.x = element->texture->flipped ? element->texture->image->w - sprite.x - sprite.w : sprite.x;
     element->texture->sprite.y = sprite.y;
     element->texture->sprite.w = sprite.w;
     element->texture->sprite.h = sprite.h;
@@ -127,7 +127,7 @@ int main(int argc, char * argv[]) {
     sonic = map_add(SONIC, sonic_standing, 25, 140, 10, 1);
     MAX_WIDTH = load_stage();
 
-    int isSneaking = 0, collided = 0, isJumping = 0;
+    int isSneaking = 0, collided = 0, isJumping = 0, isFalling = 0;
     int active = 1;
     SDL_Event event;
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -187,15 +187,14 @@ int main(int argc, char * argv[]) {
                                 if (!sonic->texture->flipped) flipSprite(sonic->texture);
                                 dx -= 10;
                                 frame = getSonicFrame(6);
-                                sonic->texture->sprite = getSonicSprite("walk", frame);
-                                sonic->texture->sprite.x = flippedX(sonic->texture, sonic->texture->sprite.x);
+                                change(sonic, getSonicSprite("walk", frame));
                                 break;
                             case SDLK_RIGHT:
                             case SDLK_d:
                                 if (sonic->texture->flipped) flipSprite(sonic->texture);
                                 dx += 10;
                                 frame = getSonicFrame(6);
-                                sonic->texture->sprite = getSonicSprite("walk", frame);
+                                change(sonic, getSonicSprite("walk", frame));
                                 break;
                         }
                     }
@@ -249,18 +248,23 @@ int main(int argc, char * argv[]) {
             }
             case SDL_KEYUP:
                 switch (event.key.keysym.sym) {
+                    case SDLK_LEFT:
+                    case SDLK_a:
+                    case SDLK_RIGHT:
+                    case SDLK_d:
+                        if (isJumping || isSneaking) break;
+                        change(sonic, sonic_standing);
+                        break;
                     case SDLK_SPACE:
-                        if (!isJumping) break;
-                        frame = getSonicFrame(1);
-                        sonic->texture->sprite = getSonicSprite("normal", frame);
+                        isJumping = 0;
+                        if (isFalling) break;
+                        change(sonic, sonic_standing);
                         break;
                     case SDLK_UP:
                     case SDLK_w:
                         if (isSneaking) break;
                     case SDLK_DOWN:
                     case SDLK_s: {
-                    frame = getSonicFrame(1);
-                    sonic->texture->sprite = getSonicSprite("special", frame);
                         switch (event.key.keysym.sym) {
                             case SDLK_DOWN:
                             case SDLK_s:
