@@ -276,9 +276,8 @@ int main(int argc, char * argv[]) {
     Mix_VolumeMusic(MIX_MAX_VOLUME * .05);
 
     setRings(0);
-    sonic = map_add(SONIC, sonic_standing, 25, 140, 10, 1);
+    sonic = map_add(SONIC, sonic_standing, 25, 160, 10, 1);
     MAX_WIDTH = load_stage();
-    move(sonic, 4000, 0);
 
     do {
         loop(windowFlags);
@@ -329,7 +328,7 @@ void loop(Uint32 windowFlags) {
                                 isJumping = 1;
                                 dy -= 10;
                                 sonic->texture->sprite = getSonicSprite("jump", 0);
-                                jumpHeight = 50;
+                                jumpHeight = 100;
 
                                 // 🔹 Stocke la position Y initiale avant le saut
                                 initialY = sonic->pos.y;
