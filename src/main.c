@@ -111,7 +111,10 @@ Uint32 fall(Uint32 interval, void * param) {
 
     if (sonic->pos.y > 500) {
         printf("\nrip");
-        return 0;
+        sonic->pos.x = 25;
+        sonic->pos.y = 140;
+        setOffsetX(0);
+        setOffsetY(0);
     }
 
     map_show();
