@@ -105,6 +105,34 @@ void loadMusic() {
     }
 }
 
+int soundEnabled = 1; // 1 pour activé, 0 pour désactivé
+
+// Fonction pour basculer le son (Mute/Unmute)
+void toggleSound() {
+    if (soundEnabled) {
+        Mix_PauseMusic(); // Met en pause la musique
+        soundEnabled = 0;
+    } else {
+        Mix_ResumeMusic(); // Relance la musique
+        soundEnabled = 1;
+    }
+}
+
+// Permet de dessiner un bouton graphique pour contrôler le son
+void drawMuteButton() {
+    SDL_Rect muteButton = {850, 200, 100, 50}; // Position et dimensions du bouton
+    SDL_FillRect(screen, &muteButton, SDL_MapRGB(screen->format, 255, 0, 0)); // Rectangle rouge
+
+    const char* buttonText = soundEnabled ? "Mute" : "Unmute";
+    SDL_Color textColor = {255, 255, 255};
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, buttonText, textColor);
+
+    SDL_Rect textPos = {muteButton.x + 10, muteButton.y + 10, textSurface->w, textSurface->h};
+    SDL_BlitSurface(textSurface, NULL, screen, &textPos);
+
+    SDL_FreeSurface(textSurface);
+}
+
 void loadFont(char * path) {
     font = TTF_OpenFont(path, 16);
     if (font != NULL) return;
@@ -133,6 +161,7 @@ void setRings(int amount) {
 
 void screen_show() {
     map_show();
+    drawMuteButton();
     SDL_Surface * ringsText = TTF_RenderText_Solid(font, ringsStr, (SDL_Color){255, 255, 255});
     SDL_BlitSurface(ringsText, NULL, screen, &ringsTextPos);
     free(ringsText);
@@ -372,9 +401,10 @@ void loop(Uint32 windowFlags) {
                 move(sonic, dx, dy);
 
 
-                MapElement * collision = element_colliding(sonic);
+                MapElement *collision = element_colliding(sonic);
                 if (collision) {
-                    if (!collision->texture->image || !isFalling && !isJumping && collision->texture->image == getImage(OBJECTS)) { // colliding and is collision or object
+                    if (!collision->texture->image || !isFalling && !isJumping && collision->texture->image == getImage(
+                            OBJECTS)) { // colliding and is collision or object
                         int bottomY = sonic->pos.y + sonic->texture->sprite.h;
 
                         if (bottomY >= collision->pos.y) {
@@ -452,15 +482,22 @@ void loop(Uint32 windowFlags) {
                     }
                 }
                 break;
-            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONDOWN: {
+                int x = event.button.x;
+                int y = event.button.y;
+
+                // Clic sur le bouton "Mute/Unmute"
+                if (x >= 850 && x <= 950 && y >= 200 && y <= 250) {
+                    toggleSound();
+                }
                 break;
+            }
             case SDL_MOUSEBUTTONUP:
                 break;
             case SDL_MOUSEMOTION:
                 break;
             default: break;
         }
-
         screen_show();
     }
 }
