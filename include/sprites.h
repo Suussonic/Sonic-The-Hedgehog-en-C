@@ -33,6 +33,7 @@ extern SDL_Rect sonic_standing;
 
 void loadImages(SDL_Surface * screen);
 void loadImage(ImageEnum img, char path[], Uint32 backgroundColor);
+void freeImages();
 
 int getBackGroundColor(ImageEnum image);
 SDL_Surface * getImage(ImageEnum image);

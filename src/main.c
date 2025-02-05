@@ -16,7 +16,7 @@
 SDL_Surface * screen;
 
 const int WINDOW_WIDTH = 1000;
-const int WINDOW_HEIGHT = 1000;
+const int WINDOW_HEIGHT = 256;
 int MAX_WIDTH = 0;
 
 MapElement * sonic;
@@ -26,6 +26,7 @@ TTF_Font * font = NULL;
 //Mise en place de l'écran
 void safeQuit() {
     map_free();
+    freeImages();
 
     if (screen != NULL) SDL_FreeSurface(screen);
     if (bgMusic != NULL) Mix_FreeMusic(bgMusic);
@@ -243,6 +244,7 @@ int main(int argc, char * argv[]) {
     TTF_Init();
     loadFont("assets/arial.ttf");
 
+    loadImages(screen);
     if (!showTitleScreen(WINDOW_WIDTH, WINDOW_HEIGHT, screen, font)) safeQuit();
 
     bgMusic = Mix_LoadMUS("assets/sounds/green_hill_zone.mp3");
@@ -252,12 +254,6 @@ int main(int argc, char * argv[]) {
     }
     Mix_PlayMusic(bgMusic, -1);
     Mix_VolumeMusic(MIX_MAX_VOLUME * .05);
-
-    loadImages(screen);
-
-    //SDL_Surface * titleScreenBg = images[TITLE_SCREEN];
-    //SDL_Rect titleScreenBgSprite = getPos(24, 213, 1024, 112);
-    //SDL_Rect titleScreenBgPos = getPos(0, 0, -1, -1);
 
     setRings(0);
     sonic = map_add(SONIC, sonic_standing, 25, 140, 10, 1);

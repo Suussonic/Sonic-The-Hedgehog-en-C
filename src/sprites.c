@@ -114,7 +114,7 @@ void loadImages(SDL_Surface * screen) {
     // sRGB errors, I'll fix them later...
     //images[DR_ROBOTNIK_GREEN_HILL] = loadImage("global/Dr Robotnik Green Hill Zone");
     loadImage(SONIC, "global/sonic", green);
-    //loadImage(TITLE_SCREEN, "miscellaneous/Title Screen", -1);
+    loadImage(TITLE_SCREEN, "miscellaneous/title_screen", color(16, 112, 132));
     loadImage(OBJECTS, "object/objects", color(13, 72, 7));
     loadImage(GREEN_HILL_BACKGROUND, "stage/background", -1);
     loadImage(GREEN_HILL_FOREGROUND, "stage/foreground", color(135, 16, 19));
@@ -123,6 +123,12 @@ void loadImages(SDL_Surface * screen) {
     animations[1] = sonic_running;
     animations[2] = sonic_jumping;
     animations[3] = sonic_special_positions;
+}
+
+void freeImages() {
+    for (int i = 0; i < 17; ++i) {
+        if (images[i]) free(images[i]);
+    }
 }
 
 // Fonction pour obtenir la position d'un sprite en fonction de l'action

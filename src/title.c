@@ -1,8 +1,7 @@
 #include <title.h>
-#include <SDL.h>
+#include <sprites.h>
 #include <SDL_image.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #define FRAME_COUNT 18
 #define LOOP_START 16 // Répétition des 2 dernières frames
@@ -17,29 +16,34 @@ SDL_Rect title_sprites[FRAME_COUNT] = {
 };
 
 int showTitleScreen(int width, int height, SDL_Surface *screen, TTF_Font *font) {
-    SDL_Surface *titleImage = IMG_Load("assets/sprites/miscellaneous/Title Screen.png");
-    if (!titleImage) {
-        fprintf(stderr, "Erreur de chargement de l'image du titre : %s\n", IMG_GetError());
-        return 0;
-    }
-    
-    SDL_SetColorKey(titleImage, SDL_TRUE, SDL_MapRGB(titleImage->format, 16, 112, 132)); // Supprime la couleur du cadre
-    
+    SDL_Surface *titleImage = getImage(TITLE_SCREEN);
+
+    SDL_Rect playPos = {.x = width / 2 - 75, .y = height - 50, 200, 60};
+    SDL_Surface * play = TTF_RenderText_Solid(font, "Press Space to play", (SDL_Color){255, 255, 255});
+
+    SDL_Surface * bg = getImage(TITLE_SCREEN);
+    SDL_Rect bgSprite = {24, 213, 1024, 112};
+    SDL_Rect bgPos = {0, 0, -1, -1};
+    SDL_Rect bgSprite2 = {24, 334, 1024, 144};
+    SDL_Rect bgPos2 = {0, 112, -1, -1};
+
     int spriteWidth = width * 0.75;
     int spriteHeight = height * 0.75;
-    SDL_Rect titlePos = {width / 2 - spriteWidth / 2, height / 2 - spriteHeight / 2, spriteWidth, spriteHeight}; // Placement centré et ajustement taille
-    
+    SDL_Rect titlePos = {width / 2 - spriteWidth / 5, height / 2 - spriteHeight, spriteWidth, spriteHeight}; // Placement centré et ajustement taille
+
     int frame = LOOP_START; // Commence directement à la boucle finale
-    int running = 1;
     SDL_Event event;
     Uint32 lastUpdate = SDL_GetTicks();
     
-    while (running) {
+    while (1) {
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = 0;
-            } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
-                running = 0;
+            if (event.type == SDL_QUIT || event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+                free(play);
+                return 0;
+            }
+            if (event.type == SDL_KEYDOWN && (event.key.keysym.sym == SDLK_SPACE || event.key.keysym.sym == SDLK_RETURN)) {
+                free(play);
+                return 1;
             }
         }
         
@@ -51,10 +55,10 @@ int showTitleScreen(int width, int height, SDL_Surface *screen, TTF_Font *font) 
         }
         
         SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
+        SDL_BlitSurface(bg, &bgSprite, screen, &bgPos);
+        SDL_BlitSurface(bg, &bgSprite2, screen, &bgPos2);
         SDL_BlitSurface(titleImage, &title_sprites[frame], screen, &titlePos);
+        SDL_BlitSurface(play, NULL, screen, &playPos);
         SDL_Flip(screen);
     }
-    
-    SDL_FreeSurface(titleImage);
-    return 1;
 }
