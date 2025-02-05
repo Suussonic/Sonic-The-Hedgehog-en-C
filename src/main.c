@@ -6,6 +6,13 @@
 #include <SDL_ttf.h>
 #include <title.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+#ifdef linux
+#include <unistd.h>
+#endif
+
 SDL_Surface * screen;
 
 const int WINDOW_WIDTH = 1000;
@@ -201,6 +208,17 @@ Uint32 jump(Uint32 interval, void * param) {
     return interval;
 }
 
+void app_sleep(int ms) {
+    #ifdef _WIN32
+        Sleep(ms);
+    #endif
+    #ifdef linux
+    usleep(ms);
+    #endif
+}
+
+void loop(Uint32 windowFlags);
+
 int main(int argc, char * argv[]) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         fprintf(stderr,"Error in SDL_Init : %s\n", SDL_GetError());
@@ -221,11 +239,7 @@ int main(int argc, char * argv[]) {
     TTF_Init();
     loadFont("assets/arial.ttf");
 
-    if (!showTitleScreen(WINDOW_WIDTH, WINDOW_HEIGHT, screen, font)) {
-        safeQuit();
-    }
-
-    setRings(0);
+    if (!showTitleScreen(WINDOW_WIDTH, WINDOW_HEIGHT, screen, font)) safeQuit();
 
     bgMusic = Mix_LoadMUS("assets/sounds/green_hill_zone.mp3");
     if (bgMusic == NULL) {
@@ -241,11 +255,23 @@ int main(int argc, char * argv[]) {
     //SDL_Rect titleScreenBgSprite = getPos(24, 213, 1024, 112);
     //SDL_Rect titleScreenBgPos = getPos(0, 0, -1, -1);
 
+    setRings(0);
     sonic = map_add(SONIC, sonic_standing, 25, 140, 10, 1);
-    SDL_AddTimer(60, fall, NULL);
-
     MAX_WIDTH = load_stage();
 
+    SDL_AddTimer(60, fall, NULL);
+    app_sleep(1000);
+
+    do {
+        loop(windowFlags);
+        SDL_EnableKeyRepeat(0, 0);
+        app_sleep(40);
+    } while (showTitleScreen(WINDOW_WIDTH, WINDOW_HEIGHT, screen, font));
+
+    safeQuit();
+}
+
+void loop(Uint32 windowFlags) {
     int active = 1;
     SDL_Event event;
     SDL_EnableKeyRepeat(30, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -403,5 +429,4 @@ int main(int argc, char * argv[]) {
 
         screen_show();
     }
-    safeQuit();
 }
