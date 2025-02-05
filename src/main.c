@@ -92,8 +92,14 @@ void loadMusic() {
     }
 }
 
+int rings = 0;
 int isSneaking = 0, collided = 0, isJumping = 0, isFalling = 0;
-int jumpHeight = 0;
+int jumpHeight = 0, kickYeet = 0;
+
+void stand() {
+    change(sonic, sonic_standing);
+    map_show();
+}
 
 Uint32 fall(Uint32 interval, void * param) {
     MapElement * collision = element_colliding(sonic);
@@ -101,9 +107,7 @@ Uint32 fall(Uint32 interval, void * param) {
     if (collision) {
         sonic->pos.y = collision->pos.y - sonic->texture->sprite.h;
         isFalling = 0;
-        change(sonic, sonic_standing);
-        map_show();
-        SDL_Flip(screen);
+        stand();
         return 0;
     }
 
@@ -118,7 +122,21 @@ Uint32 fall(Uint32 interval, void * param) {
     }
 
     map_show();
-    SDL_Flip(screen);
+    return interval;
+}
+
+Uint32 damage(Uint32 interval, void * param) {
+    printf("\nDamage");
+    if (kickYeet <= 0) {
+        collided = 0;
+        SDL_SetTimer(0, NULL);
+        SDL_AddTimer(40, fall, NULL);
+        return 0;
+    }
+
+    --kickYeet;
+    move(sonic, 10 * (*(int*)param ? 1 : -1), -5);
+    map_show();
     return interval;
 }
 
@@ -138,7 +156,6 @@ Uint32 jump(Uint32 interval, void * param) {
     move(sonic, 0, -10);
 
     map_show();
-    SDL_Flip(screen);
     return interval;
 }
 
@@ -236,7 +253,7 @@ int main(int argc, char * argv[]) {
                                 break;
                             case SDLK_LEFT:
                             case SDLK_a:
-                                if (sonic->pos.x <= 0) break;
+                                if (sonic->pos.x <= 0 || collided) break;
                                 if (!sonic->texture->flipped) flipSprite(sonic->texture);
                                 dx -= 10;
                                 frame = getSonicFrame(6);
@@ -244,6 +261,7 @@ int main(int argc, char * argv[]) {
                                 break;
                             case SDLK_RIGHT:
                             case SDLK_d:
+                                if (collided) break;
                                 if (sonic->texture->flipped) flipSprite(sonic->texture);
                                 dx += 10;
                                 frame = getSonicFrame(6);
@@ -276,26 +294,22 @@ int main(int argc, char * argv[]) {
                         }
                         break;
                     }
-/*
+
                     if (!collided) { // colliding and isn't collision (enemy/object)
                         collided = 1;
-                        sonic->texture->sprite.w = 40;
-                        sonic->texture->sprite.x = flippedX(sonic->texture, 39);
-                        sonic->texture->sprite.y = 807;
-                        sonic->texture->sprite.h = 32;
-                        if (!isSneaking) move(sonic, 0, 8);
+                        change(sonic, getPos(39, 807, 40, 32));
+                        if (isSneaking) {
+                            isSneaking = 0;
+                            isJumping = 0;
+                            isFalling = 1;
+                            move(sonic, 0, -8);
+                        }
+                        //loose rings
+                        kickYeet = 10;
+                        int direction = sonic->pos.x - collision->pos.x > 0;
+                        SDL_AddTimer(30, damage, &direction);
                     }
-                */
                 }
-                /*
-                if (!collision && collided) {
-                    collided = 0;
-                    sonic->texture->sprite.w = 32;
-                    sonic->texture->sprite.x = flippedX(sonic->texture, 43);
-                    sonic->texture->sprite.y = 257;
-                    sonic->texture->sprite.h = 40;
-                    move(sonic, 0, -8);
-                }*/
                 break;
             }
             case SDL_KEYUP:
@@ -338,7 +352,6 @@ int main(int argc, char * argv[]) {
         }
 
         map_show();
-        SDL_Flip(screen);
     }
     safeQuit();
 }

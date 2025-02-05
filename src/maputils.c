@@ -43,6 +43,8 @@ void map_show() {
     for (int i = 0; i < mapSize; ++i) {
         element_show(map[i]);
     }
+
+    SDL_Flip(mapScreen);
 }
 
 void setOffsetX(int offset) {
