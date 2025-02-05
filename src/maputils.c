@@ -28,10 +28,8 @@ void element_show(MapElement * element) {
     if (image == NULL) return;
 
     SDL_Rect pos = element->pos;
-    if (image != getImage(GREEN_HILL_BACKGROUND)) {
-        pos.x -= dx;
-        pos.y -= dy;
-    }
+    pos.x -= dx;
+    pos.y -= dy;
 
     SDL_BlitSurface(image, &element->texture->sprite, mapScreen, &pos);
 }
@@ -42,8 +40,6 @@ void map_show() {
     for (int i = 0; i < mapSize; ++i) {
         element_show(map[i]);
     }
-
-    SDL_Flip(mapScreen);
 }
 
 void setOffsetX(int offset) {
@@ -64,6 +60,28 @@ int compareElements(const void * a, const void * b) {
     const MapElement * e1 = *(MapElement**) b;
     if (e0->z < e1->z) return 0;
     return e0->z > e1->z;
+}
+
+void updateMap(MapElement * element) {
+    MapElement ** ptr = malloc(sizeof (MapElement*) * mapSize + (element == NULL ? -1 : 1));
+    if (ptr == NULL) {
+        fprintf(stderr, "Couldn't reallocate map memory!");
+        return;
+    }
+
+    if (map != NULL) {
+        for (int i = 0; i < mapSize - (element == NULL); ++i) {
+            ptr[i] = map[i];
+        }
+
+        free(map);
+    }
+    if (element != NULL) {
+        ptr[mapSize] = element;
+        ++mapSize;
+    } else --mapSize;
+    map = ptr;
+    qsort(map, mapSize, sizeof(MapElement*), compareElements);
 }
 
 MapElement * map_add(ImageEnum image, SDL_Rect sprite, int x, int y, int z, int collision) {
@@ -87,18 +105,8 @@ MapElement * map_add(ImageEnum image, SDL_Rect sprite, int x, int y, int z, int 
     element->pos = pos;
     element->z = z;
     element->collision = collision;
-    MapElement ** ptr = malloc(sizeof (MapElement*) * (mapSize+1));
-    if (ptr != NULL) {
-        if (map != ptr) {
-            for (int i = 0; i < mapSize; ++i) {
-                ptr[i] = map[i];
-            }
-        }
-        free(map);
-        map = ptr;
-        map[mapSize++] = element;
-        qsort(map, mapSize, sizeof(MapElement*), compareElements);
-    } else fprintf(stderr, "Couldn't reallocate map memory!");
+
+    updateMap(element);
     return element;
 }
 
@@ -112,14 +120,11 @@ void map_remove(MapElement * element) {
     for (int i = 0; i < mapSize; ++i) {
         if (map[i] == element) {
             ++found;
-            --mapSize;
             continue;
         }
         if (found) map[i-1] = map[i];
-
     }
-    MapElement ** ptr = realloc(map, sizeof (MapElement*) * mapSize);
-    if (ptr != NULL) map = ptr;
+    if (found) updateMap(NULL);
 }
 
 int elements_colliding(MapElement * e0, MapElement * e1) {

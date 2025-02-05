@@ -26,5 +26,8 @@ int load_stage() {
     map_add_slope(856, 190, 1000, 125, 0, 20);
     map_add_collision(getPos(1000, 95, 20, 30), 0);
 
+    map_add(OBJECTS, getPos(24, 485, 32, 32), 150, 160, 0, 1);
+    map_add(OBJECTS, getPos(24, 198, 16, 16), 400, 160, 0, 1);
+
     return 10240;
 }

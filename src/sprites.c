@@ -105,14 +105,16 @@ Uint32 color(int r, int g, int b) {
 
 void loadImages(SDL_Surface * screen) {
     spritesScreen = screen;
-    loadImage(BADNIKS, "global/badniks", color(67, 153, 49));
+    Uint32 green = color(67, 153, 49);
+    loadImage(BADNIKS, "global/badniks", green);
     //images[CRITTERS] = loadImage("global/Critters");
     //images[DR_ROBOTNIK] = loadImage("global/Dr Robotnik");
 
     // sRGB errors, I'll fix them later...
     //images[DR_ROBOTNIK_GREEN_HILL] = loadImage("global/Dr Robotnik Green Hill Zone");
-    loadImage(SONIC, "global/sonic", color(67, 153, 49));
+    loadImage(SONIC, "global/sonic", green);
     //loadImage(TITLE_SCREEN, "miscellaneous/Title Screen", -1);
+    loadImage(OBJECTS, "object/objects", color(13, 72, 7));
     loadImage(GREEN_HILL_BACKGROUND, "stage/background", -1);
     loadImage(GREEN_HILL_FOREGROUND, "stage/foreground", color(135, 16, 19));
 

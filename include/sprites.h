@@ -9,6 +9,7 @@ typedef enum ImageEnum {
     DR_ROBOTNIK = 2,
     SONIC = 3,
     TITLE_SCREEN = 10,
+    OBJECTS = 11,
     GREEN_HILL_BACKGROUND = 13,
     GREEN_HILL_FOREGROUND = 14,
     DR_ROBOTNIK_GREEN_HILL = 15

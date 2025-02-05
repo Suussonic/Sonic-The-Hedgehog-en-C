@@ -3,6 +3,7 @@
 #include <maputils.h>
 #include <green_hill.h>
 #include <SDL_mixer.h>
+#include <SDL_ttf.h>
 
 SDL_Surface * screen;
 
@@ -12,6 +13,7 @@ int MAX_WIDTH = 0;
 
 MapElement * sonic;
 Mix_Music * bgMusic = NULL;
+TTF_Font * font = NULL;
 
 //Mise en place de l'écran
 void safeQuit() {
@@ -19,9 +21,11 @@ void safeQuit() {
 
     if (screen != NULL) SDL_FreeSurface(screen);
     if (bgMusic != NULL) Mix_FreeMusic(bgMusic);
+    if (font != NULL) TTF_CloseFont(font);
 
     Mix_CloseAudio();
     Mix_Quit();
+    TTF_Quit();
 
     SDL_Quit();
     exit(EXIT_FAILURE);
@@ -92,19 +96,56 @@ void loadMusic() {
     }
 }
 
+void loadFont(char * path) {
+    font = TTF_OpenFont(path, 16);
+    if (font != NULL) return;
+    fprintf(stderr, "Error while loading font \"%s\"\n", path);
+    TTF_Quit();
+    safeQuit();
+}
+
 int rings = 0;
 int isSneaking = 0, collided = 0, isJumping = 0, isFalling = 0;
 int jumpHeight = 0, kickYeet = 0;
 
+SDL_Rect ringRect = {.x = 24, .y = 198, .w = 16, .h = 16};
+SDL_Rect ringPos = {.x = WINDOW_WIDTH-40, .y = 5};
+SDL_Rect ringsTextPos = {.x = WINDOW_WIDTH-50, .y = 5};
+char ringsStr[3];
+
+void setRings(int amount) {
+    rings = amount > 999 ? 999 : amount;
+    itoa(rings, ringsStr, 10);
+    ringsTextPos.x = WINDOW_WIDTH - 40 - strlen(ringsStr) * 10;
+}
+
+void screen_show() {
+    map_show();
+    SDL_Surface * ringsText = TTF_RenderText_Solid(font, ringsStr, (SDL_Color){255, 255, 255});
+    SDL_BlitSurface(ringsText, NULL, screen, &ringsTextPos);
+    free(ringsText);
+    SDL_BlitSurface(getImage(OBJECTS), &ringRect, screen, &ringPos);
+    SDL_Flip(screen);
+}
+
 void stand() {
     change(sonic, sonic_standing);
-    map_show();
+    screen_show();
 }
 
 Uint32 fall(Uint32 interval, void * param) {
     MapElement * collision = element_colliding(sonic);
 
     if (collision) {
+        if (collision->texture->image != NULL) {
+            map_remove(collision);
+
+            if (collision->texture->image == getImage(OBJECTS)) {
+                setRings(rings+1);
+            }
+            return interval;
+        }
+
         sonic->pos.y = collision->pos.y - sonic->texture->sprite.h;
         isFalling = 0;
         stand();
@@ -121,13 +162,14 @@ Uint32 fall(Uint32 interval, void * param) {
         setOffsetY(0);
     }
 
-    map_show();
+    screen_show();
     return interval;
 }
 
 Uint32 damage(Uint32 interval, void * param) {
     if (kickYeet <= 0) {
         collided = 0;
+        isFalling = 1;
         SDL_SetTimer(0, NULL);
         SDL_AddTimer(40, fall, NULL);
         return 0;
@@ -135,7 +177,7 @@ Uint32 damage(Uint32 interval, void * param) {
 
     --kickYeet;
     move(sonic, 10 * (*(int*)param ? 1 : -1), -5);
-    map_show();
+    screen_show();
     return interval;
 }
 
@@ -154,7 +196,7 @@ Uint32 jump(Uint32 interval, void * param) {
     jumpHeight -= 10;
     move(sonic, 0, -10);
 
-    map_show();
+    screen_show();
     return interval;
 }
 
@@ -175,6 +217,9 @@ int main(int argc, char * argv[]) {
     printf("Loading the game!");
     SDL_WM_SetCaption("Sonic C Hedgehog", NULL);
 
+    TTF_Init();
+    loadFont("assets/arial.ttf");
+    setRings(0);
 
     bgMusic = Mix_LoadMUS("assets/sounds/green_hill_zone.mp3");
     if (bgMusic == NULL) {
@@ -199,7 +244,6 @@ int main(int argc, char * argv[]) {
     SDL_Event event;
     SDL_EnableKeyRepeat(30, SDL_DEFAULT_REPEAT_INTERVAL);
     int frame;
-    SDL_Rect newSprite;
     while (active) {
         SDL_WaitEvent(&event);
         SDL_FillRect(screen, NULL, color(0, 0, 0));
@@ -275,7 +319,7 @@ int main(int argc, char * argv[]) {
 
                 MapElement * collision = element_colliding(sonic);
                 if (collision) {
-                    if (!collision->texture->image) { // colliding and is collision
+                    if (!collision->texture->image || !isFalling && !isJumping && collision->texture->image == getImage(OBJECTS)) { // colliding and is collision or object
                         int bottomY = sonic->pos.y + sonic->texture->sprite.h;
 
                         if (bottomY >= collision->pos.y) {
@@ -295,14 +339,15 @@ int main(int argc, char * argv[]) {
                     }
 
                     if (!collided) { // colliding and isn't collision (enemy/object)
-                        collided = 1;
-                        change(sonic, getPos(39, 807, 40, 32));
+                        if (collision->texture->image == getImage(OBJECTS)) break;
+                        if (isJumping || isFalling) break;
                         if (isSneaking) {
                             isSneaking = 0;
-                            isJumping = 0;
-                            isFalling = 1;
                             move(sonic, 0, -8);
                         }
+                        collided = 1;
+                        change(sonic, getPos(39, 807, 40, 32));
+
                         //loose rings
                         kickYeet = 10;
                         int direction = sonic->pos.x - collision->pos.x > 0;
@@ -350,7 +395,7 @@ int main(int argc, char * argv[]) {
             default: break;
         }
 
-        map_show();
+        screen_show();
     }
     safeQuit();
 }
