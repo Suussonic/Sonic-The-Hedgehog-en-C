@@ -389,6 +389,16 @@ void loop(Uint32 windowFlags) {
                         SDL_AddTimer(30, damage, &direction);
                     }
                 }
+
+                if (isFalling || isJumping) break;
+
+                move(sonic, 0, -10);
+                if (element_colliding(sonic)) {
+                    move(sonic, 0, 10);
+                    break;
+                }
+                isFalling = 1;
+                SDL_AddTimer(40, fall, NULL);
                 break;
             }
             case SDL_KEYUP:
@@ -408,8 +418,9 @@ void loop(Uint32 windowFlags) {
                         switch (event.key.keysym.sym) {
                             case SDLK_DOWN:
                             case SDLK_s:
+                                if (!isSneaking) break;
                                 isSneaking = 0;
-                                if (collided || isJumping) break;
+                                if (collided || isJumping || isFalling) break;
                                 sonic->texture->sprite.w = 32;
                                 sonic->texture->sprite.h = 40;
                                 move(sonic, 0, -8);
